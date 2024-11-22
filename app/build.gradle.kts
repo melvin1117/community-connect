@@ -68,9 +68,9 @@ dependencies {
     implementation (libs.androidx.material.v153)
     implementation (libs.androidx.ui.tooling.preview)
     implementation (libs.androidx.lifecycle.runtime.ktx)
-    implementation ("androidx.activity:activity-compose:1.7.2")
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    debugImplementation ("androidx.compose.ui:ui-tooling:1.5.3")
+    implementation (libs.androidx.activity.compose.v172)
+    implementation (libs.androidx.lifecycle.runtime.ktx.v261)
+    debugImplementation (libs.androidx.ui.tooling.v153)
 
 
 }

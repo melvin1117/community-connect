@@ -1,3 +1,41 @@
 <resources>
-    <string name="app_name">CommunityConnect</string>
+    <string name="app_name">Community Connect</string>
+    <string name="community">Community</string>
+    <string name="connect">Connect</string>
+    <string name="lets_connect">Let\'s Connect</string>
+    <string name="ok">OK</string>
+    <string name="welcome">Welcome</string>
+    <string name="sign_in_to_account">Sign In To Your Account</string>
+    <string name="sign_in_instruction">Make sure that you already have an account.</string>
+    <string name="create_account">Create Your Account</string>
+    <string name="sign_up_instruction">Make sure to keep your account secure.</string>
+    <string name="email_address">Email Address</string>
+    <string name="email_placeholder">Enter your email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="password_placeholder">Enter your password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="register_here">Register here</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="signin_here">Sign in here</string>
+    <string name="or">OR</string>
+    <string name="sign_in_with_google">Sign In With Google</string>
+    <string name="sign_up_with_google">Sign Up With Google</string>
+    <string name="password_min_length_error">Password must be at least 8 characters</string>
+    <string name="password_match_error">Passwords did not match</string>
+    <string name="email_valid_error">Invalid email address</string>
+    <string name="by_registering">By registering, I agree to the</string>
+    <string name="terms_and_condition">terms &amp; conditions</string>
+    <string name="terms_and_conditions_title">Terms and Conditions</string>
+    <string name="terms_and_conditions_content">
+        Please read the following terms and conditions carefully before using this app:
+        - You agree to abide by all policies and regulations.
+        - Your data will be stored securely in accordance with our privacy policy.
+        - Misuse of the app will lead to account suspension or removal.
+        - The app is provided "as is" without any warranty of any kind.
+        Thank you for registering!
+    </string>
 </resources>

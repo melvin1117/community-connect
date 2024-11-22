@@ -1,4 +1,5 @@
 [versions]
+activityCompose = "1.7.2"
 agp = "8.5.2"
 androidxMaterial = "1.5.3"
 kotlin = "1.9.10"
@@ -8,6 +9,7 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
 lifecycleRuntimeKtx = "2.8.7"
+lifecycleRuntimeKtxVersion = "2.6.1"
 material = "1.12.0"
 activity = "1.9.3"
 constraintlayout = "2.1.4"
@@ -16,20 +18,24 @@ material3Android = "1.3.1"
 materialIconsExtended = "1.x.x"
 materialVersion = "1.7.5"
 ui = "1.7.5"
+uiTooling = "1.5.3"
 uiVersion = "1.5.3"
 navigationRuntimeKtx = "2.8.4"
 navigationCompose = "2.8.4"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
+androidx-activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-runtime-ktx-v261 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
 androidx-material = { module = "androidx.compose.material:material", version.ref = "materialVersion" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-material-v153 = { module = "androidx.compose.material:material", version.ref = "androidxMaterial" }
 androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "ui" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "ui" }
+androidx-ui-tooling-v153 = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
 androidx-ui-v153 = { module = "androidx.compose.ui:ui", version.ref = "uiVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
