@@ -1,12 +1,14 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
     namespace = "com.su.communityconnect"
-    compileSdk = 34
+    compileSdk = 35
  composeOptions{
 
          kotlinCompilerExtensionVersion = "1.5.3" // Use the Compose Compiler compatible with Kotlin 1.9.0
@@ -64,13 +66,18 @@ dependencies {
     implementation (libs.androidx.ui.tooling)
     implementation (libs.androidx.material.icons.extended)
     implementation (libs.androidx.activity.compose)
-    implementation (libs.androidx.ui.v153)
-    implementation (libs.androidx.material.v153)
     implementation (libs.androidx.ui.tooling.preview)
     implementation (libs.androidx.lifecycle.runtime.ktx)
-    implementation (libs.androidx.activity.compose.v172)
-    implementation (libs.androidx.lifecycle.runtime.ktx.v261)
-    debugImplementation (libs.androidx.ui.tooling.v153)
 
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth)
+    implementation(libs.play.services.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
 }

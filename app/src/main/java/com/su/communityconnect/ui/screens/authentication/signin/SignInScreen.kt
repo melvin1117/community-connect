@@ -1,5 +1,6 @@
-package com.su.communityconnect.ui.screens
+package com.su.communityconnect.ui.screens.authentication.signin
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -7,40 +8,53 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.unit.dp
 import com.su.communityconnect.R
-import com.su.communityconnect.ui.components.IconPosition
 import com.su.communityconnect.ui.components.PasswordField
 import com.su.communityconnect.ui.components.PrimaryButton
-import com.su.communityconnect.ui.components.TermsAndConditionsBottomSheet
 import com.su.communityconnect.ui.components.TextField
+import com.su.communityconnect.ui.screens.authentication.AuthenticationButton
+import com.su.communityconnect.ui.screens.authentication.isValidEmail
+import com.su.communityconnect.ui.screens.authentication.launchCredManBottomSheet
 
 @Composable
-fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+fun SignInScreen(onNavigateToSignUp: () -> Unit, onSignInSuccess: () -> Unit, viewModel: SignInViewModel = hiltViewModel()) {
+    val email = viewModel.email.collectAsState()
+    val password = viewModel.password.collectAsState()
     var emailError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
-    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
-    var isTermsAccepted by remember { mutableStateOf(false) }
-    var isBottomSheetVisible by remember { mutableStateOf(false) }
+    val uiEvent = viewModel.uiEvent.collectAsState()
+    val context = LocalContext.current
 
-    if (isBottomSheetVisible) {
-        TermsAndConditionsBottomSheet(onDismiss = { isBottomSheetVisible = false })
+    LaunchedEffect(Unit) {
+        launchCredManBottomSheet(context) { result ->
+            viewModel.onSignInWithGoogle(result, onSignInSuccess)
+        }
     }
 
+    // Handle UI events
+    LaunchedEffect(uiEvent.value) {
+        uiEvent.value?.let { errorType ->
+            val message = when (errorType) {
+                SignInErrorType.INVALID_EMAIL -> context.getString(R.string.email_valid_error)
+                SignInErrorType.EMPTY_PASSWORD -> context.getString(R.string.password_required_error)
+                SignInErrorType.AUTHENTICATION_FAILED -> context.getString(R.string.authentication_failed)
+                SignInErrorType.SUCCESS -> context.getString(R.string.signin_successful)
+            }
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            viewModel.onUiEventConsumed()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -83,7 +97,7 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = stringResource(id = R.string.create_account),
+                    text = stringResource(id = R.string.sign_in_to_account),
                     style = MaterialTheme.typography.titleLarge.copy(
                         color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.Bold
@@ -92,7 +106,7 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = stringResource(id = R.string.sign_up_instruction),
+                    text = stringResource(id = R.string.sign_in_instruction),
                     style = MaterialTheme.typography.bodySmall.copy(
                         color = MaterialTheme.colorScheme.onSecondary
                     ),
@@ -100,15 +114,14 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 TextField(
-                    value = email,
+                    value = email.value,
                     onValueChange = {
-                        email = it
-                        emailError =
-                            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(it).matches()) {
-                                R.string.email_valid_error.toString()
-                            } else {
-                                null
-                            }
+                        viewModel.updateEmail(it)
+                        emailError = if (!it.isValidEmail()) {
+                            context.getString(R.string.email_valid_error)
+                        } else {
+                            null
+                        }
                     },
                     label = stringResource(id = R.string.email_address),
                     placeholder = stringResource(id = R.string.email_placeholder),
@@ -116,79 +129,32 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 PasswordField(
-                    value = password,
+                    value = password.value,
                     onValueChange = {
-                        password = it
-                        passwordError = if (it.length < 8) {
-                            R.string.password_min_length_error.toString()
-                        } else {
-                            null
-                        }
+                        viewModel.updatePassword(it)
                     },
                     label = stringResource(id = R.string.password),
-                    placeholder = stringResource(id = R.string.password_placeholder),
-                    errorMessage = passwordError
+                    placeholder = stringResource(id = R.string.password_placeholder)
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-                PasswordField(
-                    value = confirmPassword,
-                    onValueChange = {
-                        confirmPassword = it
-                        confirmPasswordError = if (it != password) {
-                            R.string.password_match_error.toString()
-                        } else {
-                            null
-                        }
-                    },
-                    label = stringResource(id = R.string.confirm_password),
-                    placeholder = stringResource(id = R.string.password_placeholder),
-                    errorMessage = confirmPasswordError
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = isTermsAccepted,
-                        onCheckedChange = { isTermsAccepted = it },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = MaterialTheme.colorScheme.primary,
-                            uncheckedColor = MaterialTheme.colorScheme.onBackground
-                        )
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                    TextButton(onClick = { /* Handle Forgot Password */ }) {
                         Text(
-                            text = stringResource(id = R.string.by_registering),
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
+                            text = stringResource(id = R.string.forgot_password),
+                            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onTertiary, fontWeight = FontWeight.SemiBold)
                         )
-                        TextButton(onClick = { isBottomSheetVisible = true }) {
-                            Text(
-                                text = stringResource(id = R.string.terms_and_condition),
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    color = MaterialTheme.colorScheme.onTertiary,
-                                    textDecoration = TextDecoration.Underline
-                                )
-                            )
-                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(20.dp))
                 PrimaryButton(
-                    text = stringResource(id = R.string.sign_up),
+                    text = stringResource(id = R.string.sign_in),
                     onClick = {
-                        if (emailError == null && passwordError == null && confirmPasswordError == null && isTermsAccepted) {
-                            onNavigateToSignIn()
+                        if (emailError == null) {
+                            viewModel.onSignInClick(onSignInSuccess)
                         }
                     },
                     horizontalPadding = 50.dp,
-                    enabled = isTermsAccepted
+                    enabled = emailError == null
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -198,14 +164,14 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(id = R.string.already_have_account),
+                        text = stringResource(id = R.string.dont_have_account),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                         )
                     )
-                    TextButton(onClick = onNavigateToSignIn) {
+                    TextButton(onClick = onNavigateToSignUp) {
                         Text(
-                            text = stringResource(id = R.string.signin_here),
+                            text = stringResource(id = R.string.register_here),
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onTertiary,
                                 fontWeight = FontWeight.SemiBold,
@@ -237,13 +203,9 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                PrimaryButton(
-                    text = stringResource(id = R.string.sign_up_with_google),
-                    onClick = { /* Handle Google Sign-In */ },
-                    icon = painterResource(id = R.drawable.googlelogo),
-                    iconPosition = IconPosition.Left,
-                    horizontalPadding = 20.dp
-                )
+                AuthenticationButton(buttonText = R.string.sign_in_with_google)  { credential ->
+                    viewModel.onSignInWithGoogle(credential, onSignInSuccess)
+                }
             }
         }
     }
