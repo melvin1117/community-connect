@@ -31,8 +31,8 @@ class SignUpViewModel @Inject constructor(
     private val _confirmPassword = MutableStateFlow("")
     val confirmPassword: StateFlow<String> = _confirmPassword.asStateFlow()
 
-    private val _uiEvent = MutableStateFlow<SignUpErrorType?>(null)
-    val uiEvent: StateFlow<SignUpErrorType?> = _uiEvent.asStateFlow()
+    private val _uiEvent = MutableStateFlow<SignUpType?>(null)
+    val uiEvent: StateFlow<SignUpType?> = _uiEvent.asStateFlow()
 
     fun updateEmail(newEmail: String) {
         _email.value = newEmail
@@ -47,56 +47,45 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun onSignUpClick(onNavigateToSignIn: () -> Unit) {
-//        launchCatching {
-//            if (!_email.value.isValidEmail()) {
-//                throw IllegalArgumentException("Invalid email format")
-//            }
-//
-//            if (!_password.value.isValidPassword()) {
-//                throw IllegalArgumentException("Invalid password format")
-//            }
-//
-//            if (_password.value != _confirmPassword.value) {
-//                throw IllegalArgumentException("Passwords do not match")
-//            }
-//
-//            accountService.signUp(_email.value, _password.value)
-//            onNavigateToSignIn()
-//        }
-
         launchCatching {
-            try {
-                if (!_email.value.isValidEmail()) {
-                    _uiEvent.value = SignUpErrorType.INVALID_EMAIL
-                    return@launchCatching
-                }
-                if (!_password.value.isValidPassword()) {
-                    _uiEvent.value = SignUpErrorType.INVALID_PASSWORD
-                    return@launchCatching
-                }
-                if (_password.value != _confirmPassword.value) {
-                    _uiEvent.value = SignUpErrorType.PASSWORDS_DO_NOT_MATCH
-                    return@launchCatching
-                }
+            if (!_email.value.isValidEmail()) {
+                _uiEvent.value = SignUpType.INVALID_EMAIL
+                return@launchCatching
+            }
+            if (!_password.value.isValidPassword()) {
+                _uiEvent.value = SignUpType.INVALID_PASSWORD
+                return@launchCatching
+            }
+            if (_password.value != _confirmPassword.value) {
+                _uiEvent.value = SignUpType.PASSWORDS_DO_NOT_MATCH
+                return@launchCatching
+            }
 
+            try {
                 accountService.signUp(_email.value, _password.value)
-                _uiEvent.value = SignUpErrorType.SUCCESS
-                onNavigateToSignIn() // Navigate on success
+                try {
+                    accountService.sendEmailVerification()
+                    _uiEvent.value = SignUpType.EMAIL_VERIFICATION_SENT
+                    onNavigateToSignIn()
+                } catch (e: Exception) {
+                    _uiEvent.value = SignUpType.SENDING_EMAIL_VERIFICATION_FAILED
+                }
             } catch (e: Exception) {
-                _uiEvent.value = SignUpErrorType.SIGNUP_FAILED
+                _uiEvent.value = SignUpType.FAILED
             }
         }
     }
+
 
     fun onSignUpWithGoogle(credential: Credential, onNavigateToSignIn: () -> Unit) {
         launchCatching {
             if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 accountService.linkAccountWithGoogle(googleIdTokenCredential.idToken)
-                _uiEvent.value = SignUpErrorType.SUCCESS
+                _uiEvent.value = SignUpType.EMAIL_VERIFICATION_SENT
                 onNavigateToSignIn()
             } else {
-                _uiEvent.value = SignUpErrorType.SIGNUP_FAILED
+                _uiEvent.value = SignUpType.FAILED
                 Log.e(ERROR_TAG, UNEXPECTED_CREDENTIAL)
             }
         }

@@ -21,7 +21,7 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         get() = callbackFlow {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
-                    this.trySend(auth.currentUser.toNotesUser())
+                    this.trySend(auth.currentUser.toCommunityConnectUser())
                 }
             Firebase.auth.addAuthStateListener(listener)
             awaitClose { Firebase.auth.removeAuthStateListener(listener) }
@@ -35,12 +35,8 @@ class AccountServiceImpl @Inject constructor() : AccountService {
     }
 
     override fun getUserProfile(): User {
-        return Firebase.auth.currentUser.toNotesUser()
+        return Firebase.auth.currentUser.toCommunityConnectUser()
     }
-
-//    override suspend fun createAnonymousAccount() {
-//        Firebase.auth.signInAnonymously().await()
-//    }
 
     override suspend fun updateDisplayName(newDisplayName: String) {
         val profileUpdates = userProfileChangeRequest {
@@ -75,22 +71,31 @@ class AccountServiceImpl @Inject constructor() : AccountService {
 
     override suspend fun signOut() {
         Firebase.auth.signOut()
-
-        // Sign the user back in anonymously.
-//        createAnonymousAccount()
     }
 
     override suspend fun deleteAccount() {
         Firebase.auth.currentUser!!.delete().await()
     }
 
-    private fun FirebaseUser?.toNotesUser(): User {
+    override suspend fun sendPasswordResetEmail(email: String) {
+        Firebase.auth.sendPasswordResetEmail(email).await()
+    }
+
+    override suspend fun sendEmailVerification() {
+        Firebase.auth.currentUser?.sendEmailVerification()?.await()
+    }
+
+    override suspend fun isEmailVerified(): Boolean {
+        Firebase.auth.currentUser?.reload()?.await() // Ensure the latest user state
+        return Firebase.auth.currentUser?.isEmailVerified ?: false
+    }
+
+    private fun FirebaseUser?.toCommunityConnectUser(): User {
         return if (this == null) User() else User(
             id = this.uid,
             email = this.email ?: "",
             provider = this.providerId,
             displayName = this.displayName ?: "",
-//            isAnonymous = this.isAnonymous
         )
     }
 }
