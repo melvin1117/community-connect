@@ -20,15 +20,15 @@ import javax.inject.Inject
 class SignInViewModel @Inject constructor(
     private val accountService: AccountService
 ) : CommunityConnectAppViewModel() {
-    // Backing properties to avoid state updates from other classes
+
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
 
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password.asStateFlow()
 
-    private val _uiEvent = MutableStateFlow<SignInErrorType?>(null)
-    val uiEvent: StateFlow<SignInErrorType?> = _uiEvent.asStateFlow()
+    private val _uiEvent = MutableStateFlow<SignInType?>(null)
+    val uiEvent: StateFlow<SignInType?> = _uiEvent.asStateFlow()
 
     fun updateEmail(newEmail: String) {
         _email.value = newEmail
@@ -40,21 +40,28 @@ class SignInViewModel @Inject constructor(
 
     fun onSignInClick(onSignInSuccess: () -> Unit) {
         launchCatching {
-            try {
-                if (!_email.value.isValidEmail()) {
-                    _uiEvent.value = SignInErrorType.INVALID_EMAIL
-                    return@launchCatching
-                }
-                if (_password.value.isEmpty()) {
-                    _uiEvent.value = SignInErrorType.EMPTY_PASSWORD
-                    return@launchCatching
-                }
+            if (!_email.value.isValidEmail()) {
+                _uiEvent.value = SignInType.INVALID_EMAIL
+                return@launchCatching
+            }
 
+            if (_password.value.isEmpty()) {
+                _uiEvent.value = SignInType.EMPTY_PASSWORD
+                return@launchCatching
+            }
+
+            try {
                 accountService.signInWithEmail(_email.value, _password.value)
-                _uiEvent.value = SignInErrorType.SUCCESS // Success case
-                onSignInSuccess()
+
+                if (accountService.isEmailVerified()) {
+                    _uiEvent.value = SignInType.SUCCESS
+                    onSignInSuccess()
+                } else {
+                    accountService.signOut()
+                    _uiEvent.value = SignInType.EMAIL_NOT_VERIFIED
+                }
             } catch (e: Exception) {
-                _uiEvent.value = SignInErrorType.AUTHENTICATION_FAILED
+                _uiEvent.value = SignInType.AUTHENTICATION_FAILED
             }
         }
     }
@@ -64,10 +71,10 @@ class SignInViewModel @Inject constructor(
             if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 accountService.signInWithGoogle(googleIdTokenCredential.idToken)
-                _uiEvent.value = SignInErrorType.SUCCESS
+                _uiEvent.value = SignInType.SUCCESS
                 onSignInSuccess()
             } else {
-                _uiEvent.value = SignInErrorType.AUTHENTICATION_FAILED
+                _uiEvent.value = SignInType.AUTHENTICATION_FAILED
                 Log.e(ERROR_TAG, UNEXPECTED_CREDENTIAL)
             }
         }

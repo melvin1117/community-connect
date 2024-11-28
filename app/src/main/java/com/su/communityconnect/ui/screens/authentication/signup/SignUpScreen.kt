@@ -52,16 +52,15 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit, viewModel: SignUpViewModel = hi
         }
     }
 
-    // Handle UI events
     LaunchedEffect(uiEvent.value) {
-        uiEvent.value?.let { errorType ->
-            // Show error toast
-            val message = when (errorType) {
-                SignUpErrorType.INVALID_EMAIL -> context.getString(R.string.email_valid_error)
-                SignUpErrorType.INVALID_PASSWORD -> context.getString(R.string.password_min_length_error)
-                SignUpErrorType.PASSWORDS_DO_NOT_MATCH -> context.getString(R.string.password_match_error)
-                SignUpErrorType.SIGNUP_FAILED -> context.getString(R.string.signup_failed)
-                SignUpErrorType.SUCCESS -> context.getString(R.string.signup_successful)
+        uiEvent.value?.let { event ->
+            val message = when (event) {
+                SignUpType.INVALID_EMAIL -> context.getString(R.string.email_valid_error)
+                SignUpType.INVALID_PASSWORD -> context.getString(R.string.password_min_length_error)
+                SignUpType.PASSWORDS_DO_NOT_MATCH -> context.getString(R.string.password_match_error)
+                SignUpType.FAILED -> context.getString(R.string.signup_failed)
+                SignUpType.EMAIL_VERIFICATION_SENT -> context.getString(R.string.email_verification_sent)
+                SignUpType.SENDING_EMAIL_VERIFICATION_FAILED -> context.getString(R.string.sending_verification_email_failed)
             }
             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             viewModel.onUiEventConsumed()

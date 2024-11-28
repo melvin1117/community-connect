@@ -29,7 +29,11 @@ import com.su.communityconnect.ui.screens.authentication.isValidEmail
 import com.su.communityconnect.ui.screens.authentication.launchCredManBottomSheet
 
 @Composable
-fun SignInScreen(onNavigateToSignUp: () -> Unit, onSignInSuccess: () -> Unit, viewModel: SignInViewModel = hiltViewModel()) {
+fun SignInScreen(
+    onNavigateToSignUp: () -> Unit,
+    onSignInSuccess: () -> Unit,
+    onForgotPassword: () -> Unit,
+    viewModel: SignInViewModel = hiltViewModel()) {
     val email = viewModel.email.collectAsState()
     val password = viewModel.password.collectAsState()
     var emailError by remember { mutableStateOf<String?>(null) }
@@ -46,10 +50,11 @@ fun SignInScreen(onNavigateToSignUp: () -> Unit, onSignInSuccess: () -> Unit, vi
     LaunchedEffect(uiEvent.value) {
         uiEvent.value?.let { errorType ->
             val message = when (errorType) {
-                SignInErrorType.INVALID_EMAIL -> context.getString(R.string.email_valid_error)
-                SignInErrorType.EMPTY_PASSWORD -> context.getString(R.string.password_required_error)
-                SignInErrorType.AUTHENTICATION_FAILED -> context.getString(R.string.authentication_failed)
-                SignInErrorType.SUCCESS -> context.getString(R.string.signin_successful)
+                SignInType.INVALID_EMAIL -> context.getString(R.string.email_valid_error)
+                SignInType.EMPTY_PASSWORD -> context.getString(R.string.password_required_error)
+                SignInType.AUTHENTICATION_FAILED -> context.getString(R.string.authentication_failed)
+                SignInType.EMAIL_NOT_VERIFIED -> context.getString(R.string.email_not_verified)
+                SignInType.SUCCESS -> context.getString(R.string.signin_successful)
             }
             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             viewModel.onUiEventConsumed()
@@ -138,7 +143,7 @@ fun SignInScreen(onNavigateToSignUp: () -> Unit, onSignInSuccess: () -> Unit, vi
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                    TextButton(onClick = { /* Handle Forgot Password */ }) {
+                    TextButton(onClick = onForgotPassword) {
                         Text(
                             text = stringResource(id = R.string.forgot_password),
                             style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onTertiary, fontWeight = FontWeight.SemiBold)
