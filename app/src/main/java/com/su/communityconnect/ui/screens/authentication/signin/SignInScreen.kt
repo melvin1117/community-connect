@@ -1,5 +1,6 @@
-package com.su.communityconnect.ui.screens
+package com.su.communityconnect.ui.screens.authentication.signin
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,23 +13,53 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.unit.dp
 import com.su.communityconnect.R
-import com.su.communityconnect.ui.components.IconPosition
 import com.su.communityconnect.ui.components.PasswordField
 import com.su.communityconnect.ui.components.PrimaryButton
 import com.su.communityconnect.ui.components.TextField
+import com.su.communityconnect.ui.screens.authentication.AuthenticationButton
+import com.su.communityconnect.ui.screens.authentication.isValidEmail
+import com.su.communityconnect.ui.screens.authentication.launchCredManBottomSheet
 
 @Composable
-fun SignInScreen(onNavigateToSignUp: () -> Unit, onSignInSuccess: () -> Unit) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun SignInScreen(
+    onNavigateToSignUp: () -> Unit,
+    onSignInSuccess: () -> Unit,
+    onForgotPassword: () -> Unit,
+    viewModel: SignInViewModel = hiltViewModel()) {
+    val email = viewModel.email.collectAsState()
+    val password = viewModel.password.collectAsState()
     var emailError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
+    val uiEvent = viewModel.uiEvent.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        launchCredManBottomSheet(context) { result ->
+            viewModel.onSignInWithGoogle(result, onSignInSuccess)
+        }
+    }
+
+    // Handle UI events
+    LaunchedEffect(uiEvent.value) {
+        uiEvent.value?.let { errorType ->
+            val message = when (errorType) {
+                SignInType.INVALID_EMAIL -> context.getString(R.string.email_valid_error)
+                SignInType.EMPTY_PASSWORD -> context.getString(R.string.password_required_error)
+                SignInType.AUTHENTICATION_FAILED -> context.getString(R.string.authentication_failed)
+                SignInType.EMAIL_NOT_VERIFIED -> context.getString(R.string.email_not_verified)
+                SignInType.SUCCESS -> context.getString(R.string.signin_successful)
+            }
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            viewModel.onUiEventConsumed()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -88,11 +119,11 @@ fun SignInScreen(onNavigateToSignUp: () -> Unit, onSignInSuccess: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 TextField(
-                    value = email,
+                    value = email.value,
                     onValueChange = {
-                        email = it
-                        emailError = if (!android.util.Patterns.EMAIL_ADDRESS.matcher(it).matches()) {
-                            R.string.email_valid_error.toString()
+                        viewModel.updateEmail(it)
+                        emailError = if (!it.isValidEmail()) {
+                            context.getString(R.string.email_valid_error)
                         } else {
                             null
                         }
@@ -103,22 +134,16 @@ fun SignInScreen(onNavigateToSignUp: () -> Unit, onSignInSuccess: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 PasswordField(
-                    value = password,
+                    value = password.value,
                     onValueChange = {
-                        password = it
-                        passwordError = if (it.length < 8) {
-                            R.string.password_min_length_error.toString()
-                        } else {
-                            null
-                        }
+                        viewModel.updatePassword(it)
                     },
                     label = stringResource(id = R.string.password),
-                    placeholder = stringResource(id = R.string.password_placeholder),
-                    errorMessage = passwordError
+                    placeholder = stringResource(id = R.string.password_placeholder)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                    TextButton(onClick = { /* Handle Forgot Password */ }) {
+                    TextButton(onClick = onForgotPassword) {
                         Text(
                             text = stringResource(id = R.string.forgot_password),
                             style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onTertiary, fontWeight = FontWeight.SemiBold)
@@ -126,16 +151,15 @@ fun SignInScreen(onNavigateToSignUp: () -> Unit, onSignInSuccess: () -> Unit) {
                     }
                 }
                 Spacer(modifier = Modifier.height(20.dp))
-
-                // Sign In Button
                 PrimaryButton(
                     text = stringResource(id = R.string.sign_in),
                     onClick = {
-                        if (emailError == null && passwordError == null) {
-                            onSignInSuccess()
+                        if (emailError == null) {
+                            viewModel.onSignInClick(onSignInSuccess)
                         }
                     },
-                    horizontalPadding = 50.dp
+                    horizontalPadding = 50.dp,
+                    enabled = emailError == null
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -184,15 +208,9 @@ fun SignInScreen(onNavigateToSignUp: () -> Unit, onSignInSuccess: () -> Unit) {
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Google Sign-In Button
-                PrimaryButton(
-                    text = stringResource(id = R.string.sign_in_with_google),
-                    onClick = { /* Handle Google Sign-In */ },
-                    icon = painterResource(id = R.drawable.googlelogo),
-                    iconPosition = IconPosition.Left,
-                    horizontalPadding = 20.dp
-                )
+                AuthenticationButton(buttonText = R.string.sign_in_with_google)  { credential ->
+                    viewModel.onSignInWithGoogle(credential, onSignInSuccess)
+                }
             }
         }
     }

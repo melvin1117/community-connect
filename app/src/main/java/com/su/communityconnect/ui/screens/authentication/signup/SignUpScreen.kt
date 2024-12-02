@@ -1,5 +1,6 @@
-package com.su.communityconnect.ui.screens
+package com.su.communityconnect.ui.screens.authentication.signup
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,33 +15,61 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.su.communityconnect.R
-import com.su.communityconnect.ui.components.IconPosition
 import com.su.communityconnect.ui.components.PasswordField
 import com.su.communityconnect.ui.components.PrimaryButton
 import com.su.communityconnect.ui.components.TermsAndConditionsBottomSheet
 import com.su.communityconnect.ui.components.TextField
+import com.su.communityconnect.ui.screens.authentication.AuthenticationButton
+import com.su.communityconnect.ui.screens.authentication.isValidEmail
+import com.su.communityconnect.ui.screens.authentication.isValidPassword
+import com.su.communityconnect.ui.screens.authentication.launchCredManBottomSheet
 
 @Composable
-fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+fun SignUpScreen(onNavigateToSignIn: () -> Unit, viewModel: SignUpViewModel = hiltViewModel()) {
+    val email = viewModel.email.collectAsState()
+    val password = viewModel.password.collectAsState()
+    val confirmPassword = viewModel.confirmPassword.collectAsState()
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
     var confirmPasswordError by remember { mutableStateOf<String?>(null) }
     var isTermsAccepted by remember { mutableStateOf(false) }
     var isBottomSheetVisible by remember { mutableStateOf(false) }
+    val uiEvent = viewModel.uiEvent.collectAsState()
+    val context = LocalContext.current
+
+
+    LaunchedEffect(Unit) {
+        launchCredManBottomSheet(context) { result ->
+            viewModel.onSignUpWithGoogle(result, onNavigateToSignIn)
+        }
+    }
+
+    LaunchedEffect(uiEvent.value) {
+        uiEvent.value?.let { event ->
+            val message = when (event) {
+                SignUpType.INVALID_EMAIL -> context.getString(R.string.email_valid_error)
+                SignUpType.INVALID_PASSWORD -> context.getString(R.string.password_min_length_error)
+                SignUpType.PASSWORDS_DO_NOT_MATCH -> context.getString(R.string.password_match_error)
+                SignUpType.FAILED -> context.getString(R.string.signup_failed)
+                SignUpType.EMAIL_VERIFICATION_SENT -> context.getString(R.string.email_verification_sent)
+                SignUpType.SENDING_EMAIL_VERIFICATION_FAILED -> context.getString(R.string.sending_verification_email_failed)
+            }
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            viewModel.onUiEventConsumed()
+        }
+    }
 
     if (isBottomSheetVisible) {
         TermsAndConditionsBottomSheet(onDismiss = { isBottomSheetVisible = false })
     }
-
 
     Column(
         modifier = Modifier
@@ -100,12 +129,12 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 TextField(
-                    value = email,
+                    value = email.value,
                     onValueChange = {
-                        email = it
+                        viewModel.updateEmail(it)
                         emailError =
-                            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(it).matches()) {
-                                R.string.email_valid_error.toString()
+                            if (!it.isValidEmail()) {
+                                context.getString(R.string.email_valid_error)
                             } else {
                                 null
                             }
@@ -116,11 +145,11 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 PasswordField(
-                    value = password,
+                    value = password.value,
                     onValueChange = {
-                        password = it
-                        passwordError = if (it.length < 8) {
-                            R.string.password_min_length_error.toString()
+                        viewModel.updatePassword(it)
+                        passwordError = if (!it.isValidPassword()) {
+                            context.getString(R.string.password_min_length_error)
                         } else {
                             null
                         }
@@ -131,11 +160,11 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 PasswordField(
-                    value = confirmPassword,
+                    value = confirmPassword.value,
                     onValueChange = {
-                        confirmPassword = it
-                        confirmPasswordError = if (it != password) {
-                            R.string.password_match_error.toString()
+                        viewModel.updateConfirmPassword(it)
+                        confirmPasswordError = if (it != password.value) {
+                            context.getString(R.string.password_match_error)
                         } else {
                             null
                         }
@@ -184,11 +213,11 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                     text = stringResource(id = R.string.sign_up),
                     onClick = {
                         if (emailError == null && passwordError == null && confirmPasswordError == null && isTermsAccepted) {
-                            onNavigateToSignIn()
+                            viewModel.onSignUpClick(onNavigateToSignIn)
                         }
                     },
                     horizontalPadding = 50.dp,
-                    enabled = isTermsAccepted
+                    enabled = emailError == null && passwordError == null && confirmPasswordError == null && isTermsAccepted
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -237,13 +266,9 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit) {
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                PrimaryButton(
-                    text = stringResource(id = R.string.sign_up_with_google),
-                    onClick = { /* Handle Google Sign-In */ },
-                    icon = painterResource(id = R.drawable.googlelogo),
-                    iconPosition = IconPosition.Left,
-                    horizontalPadding = 20.dp
-                )
+                AuthenticationButton(buttonText = R.string.sign_up_with_google)  { credential ->
+                    viewModel.onSignUpWithGoogle(credential, onNavigateToSignIn)
+                }
             }
         }
     }

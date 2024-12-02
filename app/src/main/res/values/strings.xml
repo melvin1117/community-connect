@@ -16,6 +16,8 @@
     <string name="password_placeholder">Enter your password</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="sign_in">Sign In</string>
+    <string name="back_sign_in">Back to Sign In</string>
+    <string name="logout">Logout</string>
     <string name="sign_up">Sign Up</string>
     <string name="dont_have_account">Don\'t have an account?</string>
     <string name="register_here">Register here</string>
@@ -24,6 +26,7 @@
     <string name="or">OR</string>
     <string name="sign_in_with_google">Sign In With Google</string>
     <string name="sign_up_with_google">Sign Up With Google</string>
+    <string name="no_accounts_error">No Google accounts found on this device</string>
     <string name="password_min_length_error">Password must be at least 8 characters</string>
     <string name="password_match_error">Passwords did not match</string>
     <string name="email_valid_error">Invalid email address</string>
@@ -38,4 +41,16 @@
         - The app is provided "as is" without any warranty of any kind.
         Thank you for registering!
     </string>
+    <string name="signin_successful">Successfully signed in.</string>
+    <string name="email_not_verified">Email not verified. Please verify your email.</string>
+    <string name="email_verification_sent">Sign-up successful. Verification email sent.</string>
+    <string name="signup_failed">Sign up failed. Please try again later.</string>
+    <string name="sending_verification_email_failed">Sending verification email failed.</string>
+    <string name="password_required_error">Password cannot be empty.</string>
+    <string name="authentication_failed">Authentication failed. Please check your credentials.</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="reset_password_instructions">Make your you have access to email</string>
+    <string name="send_reset_link">Send Reset Link</string>
+    <string name="forgot_password_failed">Error while completing the operation. Please try again.</string>
+    <string name="forgot_password_success">Link to reset password successfully sent.</string>
 </resources>
