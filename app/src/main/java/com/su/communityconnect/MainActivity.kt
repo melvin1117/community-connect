@@ -1,5 +1,4 @@
 package com.su.communityconnect
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,7 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import com.su.communityconnect.model.service.AccountService
-import com.su.communityconnect.ui.navigation.NavGraph
+import com.su.communityconnect.navigation.NavGraph
 import com.su.communityconnect.ui.theme.CommunityConnectTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -19,6 +18,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var accountService: AccountService
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
