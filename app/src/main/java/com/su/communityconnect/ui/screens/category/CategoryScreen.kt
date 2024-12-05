@@ -1,6 +1,7 @@
 package com.su.communityconnect.ui.screens.categories
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -9,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.su.communityconnect.R
 import com.su.communityconnect.ui.components.CategoryCard
+import com.su.communityconnect.ui.components.PrimaryButton
 import com.su.communityconnect.ui.components.SearchBar
 
 @Composable
@@ -24,6 +27,7 @@ fun CategoryScreen(
     onDoneClick: (List<String>) -> Unit // Passing selected categories to HomeScreen
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
+    val selectedCategories by viewModel.selectedCategories.collectAsState()
 
     // Filter categories based on the search text
     val filteredCategories = remember(searchText.text) {
@@ -36,11 +40,11 @@ fun CategoryScreen(
         }
     }
 
-    val selectedCategories by viewModel.selectedCategories.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
+
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Search Bar
@@ -56,7 +60,8 @@ fun CategoryScreen(
         Text(
             text = "Select up to 4 categories:",
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.background,
             textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth()
         )
@@ -88,23 +93,13 @@ fun CategoryScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Done Button
-        Button(
+        PrimaryButton(
+            text ="Done",
             onClick = {
-                // Pass selected categories to the HomeScreen
                 onDoneClick(selectedCategories.toList())
-            },
-            enabled = selectedCategories.isNotEmpty(),
-            modifier = Modifier
-                .fillMaxWidth(0.5f)
-                .height(50.dp)
-        ) {
-            Text(
-                text = "Done",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White,
-                fontSize = 16.sp
-            )
-        }
+            }
+        )
+
     }
 }
 

@@ -1,5 +1,4 @@
 package com.su.communityconnect.ui.components
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,13 +7,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+
 import com.su.communityconnect.R
 
 @Composable
@@ -44,32 +42,29 @@ fun EventCard(
                 painter = painterResource(id = imageRes),
                 contentDescription = title,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black)
+                modifier = Modifier.fillMaxSize()
             )
 
-            // Gradient overlay at the bottom
+            // White rectangle overlay at the bottom
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp)
                     .align(Alignment.BottomStart)
                     .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black),
-                            startY = 0f,
-                            endY = 60f
+                        color = MaterialTheme.colorScheme.background,
+                        shape = RoundedCornerShape(
+                            bottomStart = 12.dp,
+                            bottomEnd = 12.dp
                         )
                     )
             )
-
             // Badge
             Text(
                 text = badgeText,
-                color = Color.White,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = MaterialTheme.colorScheme.background,
+                    fontWeight = FontWeight.Light
+                ),
                 modifier = Modifier
                     .padding(8.dp)
                     .background(
@@ -100,37 +95,46 @@ fun EventCard(
             // Event Details
             Column(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .align(Alignment.BottomStart)
-                    .padding(8.dp)
-            ) {
+                    .background(MaterialTheme.colorScheme.background)
 
+            ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge.copy(
+                    style = MaterialTheme.typography.bodySmall.copy(
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.surface
                     )
                 )
                 Text(
                     text = date,
-                    style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
                 )
-                Text(
-                    text = "$time, $location",
-                    style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
-                )
-            }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = "$time, $location",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    )
 
-            // Status (e.g., "Free")
-            Text(
-                text = status,
-                color = MaterialTheme.colorScheme.primary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(8.dp)
-            )
+
+                    Text(
+                        text = status,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            color = MaterialTheme.colorScheme.onSecondary,
+                            fontWeight = FontWeight.Light
+                        )
+                    )
+                }
+            }
         }
     }
 }
+
