@@ -3,12 +3,15 @@ package com.su.communityconnect.model.service.module
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.su.communityconnect.model.repository.EventRepository
+import com.su.communityconnect.model.repository.UserRepository
 import com.su.communityconnect.model.service.AccountService
 import com.su.communityconnect.model.service.impl.AccountServiceImpl
 import com.su.communityconnect.model.service.CategoryService
 import com.su.communityconnect.model.service.EventService
+import com.su.communityconnect.model.service.UserService
 import com.su.communityconnect.model.service.impl.CategoryServiceImpl
 import com.su.communityconnect.model.service.impl.EventServiceImpl
+import com.su.communityconnect.model.service.impl.UserServiceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -28,6 +31,11 @@ abstract class ServiceModule {
     @Binds
     @Singleton
     abstract fun bindEventService(impl: EventServiceImpl): EventService
+
+
+    @Binds
+    @Singleton
+    abstract fun bindUserService(impl: UserServiceImpl): UserService
 }
 
 
@@ -41,6 +49,15 @@ object RepositoryModule {
         firebaseStorage: FirebaseStorage
     ): EventRepository {
         return EventRepository(firebaseDatabase, firebaseStorage)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(
+        firebaseDatabase: FirebaseDatabase,
+        firebaseStorage: FirebaseStorage
+    ): UserRepository {
+        return UserRepository(firebaseDatabase, firebaseStorage)
     }
 
     @Provides

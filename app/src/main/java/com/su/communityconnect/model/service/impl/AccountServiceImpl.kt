@@ -9,13 +9,16 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.userProfileChangeRequest
 import com.su.communityconnect.model.User
 import com.su.communityconnect.model.service.AccountService
+import com.su.communityconnect.model.service.UserService
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class AccountServiceImpl @Inject constructor() : AccountService {
+class AccountServiceImpl @Inject constructor(
+    private val userService: UserService
+) : AccountService {
 
     override val currentUser: Flow<User?>
         get() = callbackFlow {
@@ -62,7 +65,9 @@ class AccountServiceImpl @Inject constructor() : AccountService {
 
     override suspend fun signInWithGoogle(idToken: String) {
         val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-        Firebase.auth.signInWithCredential(firebaseCredential).await()
+        val result = Firebase.auth.signInWithCredential(firebaseCredential).await()
+        val user = result.user?.toCommunityConnectUser() ?: return
+        userService.saveUser(user)
     }
 
     override suspend fun signInWithEmail(email: String, password: String) {
@@ -94,8 +99,11 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         return if (this == null) User() else User(
             id = this.uid,
             email = this.email ?: "",
-            provider = this.providerId,
+            provider = this.providerData.firstOrNull()?.providerId ?: "",
             displayName = this.displayName ?: "",
+            profilePictureUrl = this.photoUrl?.toString() ?: "",
+            phone = this.phoneNumber ?: ""
         )
     }
+
 }
