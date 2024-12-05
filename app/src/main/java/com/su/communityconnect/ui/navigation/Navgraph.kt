@@ -1,4 +1,5 @@
-package com.su.communityconnect.navigation
+package com.su.communityconnect.ui.navigation
+
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -6,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.su.communityconnect.CATEGORY_SCREEN
+import com.su.communityconnect.EVENT_SCREEN
 import com.su.communityconnect.FORGOT_PASSWORD_SCREEN
 import com.su.communityconnect.HOME_SCREEN
 import com.su.communityconnect.SIGN_IN_SCREEN
@@ -18,6 +20,7 @@ import com.su.communityconnect.ui.screens.SplashScreen
 import com.su.communityconnect.ui.screens.authentication.forgotpassword.ForgotPasswordScreen
 import com.su.communityconnect.ui.screens.categories.CategoryScreen
 import com.su.communityconnect.ui.screens.categories.CategoryViewModel
+import com.su.communityconnect.ui.screens.event.EventFormScreen
 import com.su.communityconnect.ui.screens.home.HomeScreen
 
 @Composable
@@ -26,7 +29,7 @@ fun NavGraph(
     accountService: AccountService,
 ) {
     // Define the start destination based on user authentication
-    val startDestination = if (accountService.hasUser()) HOME_SCREEN else SPLASH_SCREEN
+    val startDestination = if (accountService.hasUser()) EVENT_SCREEN else SPLASH_SCREEN
     val categoryViewModel: CategoryViewModel = hiltViewModel() // Inject the ViewModel
 
     NavHost(navController = navController, startDestination = startDestination) {
@@ -39,7 +42,7 @@ fun NavGraph(
         composable(SIGN_IN_SCREEN) {
             SignInScreen(
                 onNavigateToSignUp = { navController.navigate(SIGN_UP_SCREEN) },
-                onSignInSuccess = { navController.navigate(CATEGORY_SCREEN) },
+                onSignInSuccess = { navController.navigate(EVENT_SCREEN) },
                 onForgotPassword = { navController.navigate(FORGOT_PASSWORD_SCREEN) }
             )
         }
@@ -73,6 +76,17 @@ fun NavGraph(
                     navController.navigate(SIGN_IN_SCREEN) {
                         popUpTo(HOME_SCREEN) { inclusive = true }
                     }
+                }
+            )
+        }
+
+
+        // Home Screen
+        composable(EVENT_SCREEN) {
+            EventFormScreen(
+                onBackClick = { navController.popBackStack() },
+                onEventSaved = {
+                    navController.navigate(HOME_SCREEN)
                 }
             )
         }
