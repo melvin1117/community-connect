@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.unit.dp
@@ -120,6 +121,7 @@ fun SignInScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 TextField(
                     value = email.value,
+                    onSurface = false,
                     onValueChange = {
                         viewModel.updateEmail(it)
                         emailError = if (!it.isValidEmail()) {
@@ -128,6 +130,7 @@ fun SignInScreen(
                             null
                         }
                     },
+                    keyboardType = KeyboardType.Email,
                     label = stringResource(id = R.string.email_address),
                     placeholder = stringResource(id = R.string.email_placeholder),
                     errorMessage = emailError

@@ -8,8 +8,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
+import com.google.android.libraries.places.api.Places
 import com.su.communityconnect.model.service.AccountService
-import com.su.communityconnect.navigation.NavGraph
+import com.su.communityconnect.ui.navigation.NavGraph
 import com.su.communityconnect.ui.theme.CommunityConnectTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -22,6 +23,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!Places.isInitialized()) {
+            Places.initialize(this, BuildConfig.PLACES_API_KEY)
+        }
         setContent {
             CommunityConnectTheme {
                 AppContent(accountService = accountService)
