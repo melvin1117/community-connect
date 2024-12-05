@@ -27,6 +27,7 @@ fun TextField(
     isTextArea: Boolean = false,
     maxLines: Int = 10,
     onSurface: Boolean = true,
+    readOnly: Boolean = false,
 ) {
     Column(modifier = modifier) {
         Text(
@@ -51,7 +52,8 @@ fun TextField(
                 errorTextColor = MaterialTheme.colorScheme.error
             ),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            readOnly = readOnly,
         )
         if (errorMessage != null) {
             Text(

@@ -20,3 +20,4 @@ interface AccountService {
     suspend fun sendEmailVerification()
     suspend fun isEmailVerified(): Boolean
 }
+

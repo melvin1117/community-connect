@@ -14,6 +14,7 @@ import com.su.communityconnect.SPLASH_SCREEN
 import com.su.communityconnect.FAVOURITE_SCREEN
 import com.su.communityconnect.SEARCH_EVENT_SCREEN
 import com.su.communityconnect.CREATE_EVENT_SCREEN
+import com.su.communityconnect.USER_PROFILE_SCREEN
 import com.su.communityconnect.model.service.AccountService
 import com.su.communityconnect.ui.screens.authentication.signin.SignInScreen
 import com.su.communityconnect.ui.screens.authentication.signup.SignUpScreen
@@ -22,13 +23,14 @@ import com.su.communityconnect.ui.screens.authentication.forgotpassword.ForgotPa
 import com.su.communityconnect.ui.screens.category.CategoryScreen
 import com.su.communityconnect.ui.screens.event.EventFormScreen
 import com.su.communityconnect.ui.screens.home.HomeScreen
+import com.su.communityconnect.ui.screens.userprofile.UserProfileScreen
 
 @Composable
 fun NavGraph(
     navController: NavHostController = rememberNavController(),
     accountService: AccountService,
 ) {
-    val startDestination = if (accountService.hasUser()) HOME_SCREEN else SPLASH_SCREEN
+    val startDestination = if (accountService.hasUser()) CATEGORY_SCREEN else SPLASH_SCREEN
 
     NavHost(navController = navController, startDestination = startDestination) {
         // Splash Screen
@@ -86,8 +88,7 @@ fun NavGraph(
             )
         }
 
-
-        // Home Screen
+        // Event Form Screen
         composable(EVENT_SCREEN) {
             EventFormScreen(
                 onBackClick = { navController.popBackStack() },
@@ -97,15 +98,18 @@ fun NavGraph(
             )
         }
 
+
+        // User Profile Screen
+        composable(USER_PROFILE_SCREEN) {
+            UserProfileScreen(
+                onBackClick = { navController.navigate(HOME_SCREEN) },
+            )
+        }
+
         // Category Screen
         composable(CATEGORY_SCREEN) {
             CategoryScreen(
-                onDoneClick = { selectedCategories ->
-                    // Pass selected categories to the HomeScreen
-                    navController.navigate("$HOME_SCREEN/${selectedCategories.joinToString(",")}") {
-                        popUpTo(CATEGORY_SCREEN) { inclusive = true } // Remove CategoryScreen from the backstack
-                    }
-                }
+                onBackClick = { navController.navigate(HOME_SCREEN) },
             )
         }
         composable(FAVOURITE_SCREEN) {

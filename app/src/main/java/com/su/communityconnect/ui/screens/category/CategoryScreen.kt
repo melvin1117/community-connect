@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.su.communityconnect.R
+import com.su.communityconnect.ui.components.BackButton
 import com.su.communityconnect.ui.components.CategoryCard
 import com.su.communityconnect.ui.components.PrimaryButton
 import com.su.communityconnect.ui.components.SearchBar
@@ -26,11 +27,12 @@ import com.su.communityconnect.ui.components.SearchBar
 @Composable
 fun CategoryScreen(
     viewModel: CategoryViewModel = hiltViewModel(),
-    onDoneClick: (List<String>) -> Unit
+    onBackClick: () -> Unit
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
     val selectedCategories by viewModel.selectedCategories.collectAsState()
     val categories by viewModel.categories.collectAsState()
+    val loading by viewModel.loading.collectAsState()
     val uiEvent by viewModel.uiEvent.collectAsState()
     val context = LocalContext.current
 
@@ -45,12 +47,18 @@ fun CategoryScreen(
                         Toast.LENGTH_LONG
                     ).show()
                 }
+                CategoryViewModel.CategoryUiEvent.MinLimitNotReached -> {
+                    Toast.makeText(
+                        context,
+                        "You must select at least one category.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
             viewModel.onUiEventConsumed()
         }
     }
 
-    // Filter categories based on the search text
     val filteredCategories = remember(searchText.text, categories) {
         if (searchText.text.isEmpty()) {
             categories
@@ -61,64 +69,75 @@ fun CategoryScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Search Bar
-        SearchBar(
-            searchText = searchText,
-            onTextChange = { searchText = it }
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Select up to 4 categories:",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Start,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Box(modifier = Modifier.weight(1f)) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (loading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        } else {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(filteredCategories.size) { index ->
-                    val category = filteredCategories[index]
-                    CategoryCard(
-                        title = category.name,
-                        imageUrl = category.image,
-                        isSelected = selectedCategories.contains(category.name),
-                        onCategoryClick = {
-                            viewModel.toggleCategorySelection(category.name)
+                SearchBar(
+                    searchText = searchText,
+                    onTextChange = { searchText = it }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Select up to 4 categories:",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Box(modifier = Modifier.weight(1f)) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(filteredCategories.size) { index ->
+                            val category = filteredCategories[index]
+                            CategoryCard(
+                                title = category.name,
+                                imageUrl = category.image,
+                                isSelected = selectedCategories.contains(category.id),
+                                onCategoryClick = {
+                                    viewModel.toggleCategorySelection(category.id)
+                                }
+                            )
                         }
-                    )
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                PrimaryButton(
+                    text = "Done",
+                    horizontalPadding = 50.dp,
+                    onClick = {
+                        viewModel.savePreferredCategories(
+                            onSuccess = {
+                                Toast.makeText(context, "Preferences saved!", Toast.LENGTH_LONG).show()
+                                onBackClick()
+                            },
+                            onError = { error ->
+                                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                            }
+                        )
+                    }
+                )
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Done Button
-        PrimaryButton(
-            text = "Done",
-            horizontalPadding = 50.dp,
-            onClick = {
-                onDoneClick(selectedCategories.toList())
-            }
-        )
     }
 }

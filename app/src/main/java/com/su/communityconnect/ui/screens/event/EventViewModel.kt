@@ -3,7 +3,6 @@ package com.su.communityconnect.ui.screens.event
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
 import com.su.communityconnect.model.Category
 import com.su.communityconnect.model.Event
@@ -18,10 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import network.chaintech.kmp_date_time_picker.utils.now
 import javax.inject.Inject
 
