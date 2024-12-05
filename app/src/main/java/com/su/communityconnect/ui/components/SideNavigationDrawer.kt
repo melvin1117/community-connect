@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.su.communityconnect.R
 
@@ -42,7 +45,7 @@ fun SideNavigationDrawer() {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_user), // Replace with actual image URL
-                contentDescription = null,
+                contentDescription = "Profile Image",
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape)
@@ -51,16 +54,26 @@ fun SideNavigationDrawer() {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "Amy Santiago",
-                style = MaterialTheme.typography.displayLarge
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
+
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.background.copy(alpha = 0.3f)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Navigation Items
         val navItems = listOf(
             "Profile" to Icons.Default.Person,
-            "My Events" to Icons.Default.Event,
-            "My Organized Events" to Icons.Default.CalendarToday,
-            "Notifications" to Icons.Default.Notifications,
+            "My Tickets" to Icons.Default.Event,
+            "My Bookings" to Icons.Default.CalendarToday,
+            //"Notifications" to Icons.Default.Notifications,
         )
 
         navItems.forEach { (label, icon) ->
@@ -73,16 +86,18 @@ fun SideNavigationDrawer() {
             ) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    contentDescription = label,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(28.dp)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        color = MaterialTheme.colorScheme.onPrimary)
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Normal
                     )
-
+                )
             }
         }
 
@@ -97,13 +112,18 @@ fun SideNavigationDrawer() {
         ) {
             Icon(
                 imageVector = Icons.Default.ExitToApp,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
+                contentDescription = "Logout",
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = "Logout",
-                style = MaterialTheme.typography.displaySmall)
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
         }
     }
 }
