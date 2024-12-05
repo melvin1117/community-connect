@@ -23,13 +23,16 @@ fun TextField(
     label: String,
     placeholder: String,
     errorMessage: String? = null,
-    keyboardType: KeyboardType = KeyboardType.Text
+    keyboardType: KeyboardType = KeyboardType.Text,
+    isTextArea: Boolean = false,
+    maxLines: Int = 10,
+    onSurface: Boolean = true,
 ) {
     Column(modifier = modifier) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.onBackground,
+                color = if (onSurface) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold
             ),
             modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
@@ -39,11 +42,12 @@ fun TextField(
             onValueChange = onValueChange,
             placeholder = { Text(placeholder) },
             isError = errorMessage != null,
-            singleLine = true,
+            singleLine = !isTextArea,
+            maxLines = if (isTextArea) maxLines else 1,
             shape = RoundedCornerShape(50.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = MaterialTheme.colorScheme.onBackground,
-                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                focusedTextColor = if (onSurface) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground,
+                unfocusedTextColor = if (onSurface) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground,
                 errorTextColor = MaterialTheme.colorScheme.error
             ),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),

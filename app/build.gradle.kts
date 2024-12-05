@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -21,10 +23,19 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Get the API key from local.properties
+        val localProperties = Properties().apply {
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                localPropertiesFile.inputStream().use { load(it) }
+            }
+        }
+        buildConfigField("String", "PLACES_API_KEY", "\"${localProperties["PLACES_API_KEY"]}\"")
     }
     buildFeatures {
         compose = true
-
+        buildConfig = true
         kotlinOptions {
             jvmTarget = "1.8"
         }
@@ -81,4 +92,19 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+
+    // Firebase Realtime Database
+    implementation(libs.firebase.database)
+
+    // Firebase Storage
+    implementation(libs.firebase.storage)
+
+    // Google Places
+    implementation(libs.places)
+
+    //Datetime picker (wheel)
+    implementation(libs.kmp.date.time.picker)
+
+    implementation(libs.coil.compose)
+
 }
