@@ -11,16 +11,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun CategoryCard(
     title: String,
-    imageRes: Int,
+    imageUrl: String,
     isSelected: Boolean,
     onCategoryClick: () -> Unit
 ) {
@@ -31,17 +30,16 @@ fun CategoryCard(
             .width(120.dp)
             .padding(8.dp)
             .clickable { onCategoryClick() }
-            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier
-                .background(color = MaterialTheme.colorScheme.background)
+                .background(color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
 
         ) {
             Image(
-                painter = painterResource(id = imageRes),
+                painter = rememberAsyncImagePainter(model = imageUrl),
                 contentDescription = title,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -50,9 +48,9 @@ fun CategoryCard(
             )
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelLarge,
-                fontSize = 14.sp,
-                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(8.dp)
 
             )

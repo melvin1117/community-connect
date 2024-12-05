@@ -1,7 +1,6 @@
 package com.su.communityconnect.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,8 +20,7 @@ import com.su.communityconnect.ui.screens.authentication.signin.SignInScreen
 import com.su.communityconnect.ui.screens.authentication.signup.SignUpScreen
 import com.su.communityconnect.ui.screens.SplashScreen
 import com.su.communityconnect.ui.screens.authentication.forgotpassword.ForgotPasswordScreen
-import com.su.communityconnect.ui.screens.categories.CategoryScreen
-import com.su.communityconnect.ui.screens.categories.CategoryViewModel
+import com.su.communityconnect.ui.screens.category.CategoryScreen
 import com.su.communityconnect.ui.screens.event.EventFormScreen
 import com.su.communityconnect.ui.screens.home.HomeScreen
 
@@ -31,9 +29,7 @@ fun NavGraph(
     navController: NavHostController = rememberNavController(),
     accountService: AccountService,
 ) {
-    // Define the start destination based on user authentication
-    val startDestination = if (accountService.hasUser()) EVENT_SCREEN else SPLASH_SCREEN
-    val categoryViewModel: CategoryViewModel = hiltViewModel() // Inject the ViewModel
+    val startDestination = if (accountService.hasUser()) HOME_SCREEN else SPLASH_SCREEN
 
     NavHost(navController = navController, startDestination = startDestination) {
         // Splash Screen
@@ -105,7 +101,6 @@ fun NavGraph(
         // Category Screen
         composable(CATEGORY_SCREEN) {
             CategoryScreen(
-                viewModel = categoryViewModel,
                 onDoneClick = { selectedCategories ->
                     // Pass selected categories to the HomeScreen
                     navController.navigate("$HOME_SCREEN/${selectedCategories.joinToString(",")}") {
