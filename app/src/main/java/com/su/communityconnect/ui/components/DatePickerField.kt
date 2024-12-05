@@ -1,5 +1,4 @@
 package com.su.communityconnect.ui.components
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,33 +14,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import network.chaintech.kmp_date_time_picker.ui.datetimepicker.WheelDateTimePickerView
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toJavaLocalDateTime
-import network.chaintech.kmp_date_time_picker.utils.MAX
 import network.chaintech.kmp_date_time_picker.utils.MIN
-import network.chaintech.kmp_date_time_picker.utils.TimeFormat
 import network.chaintech.kmp_date_time_picker.utils.now
 import java.time.format.DateTimeFormatter
-import com.su.communityconnect.R
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
 import network.chaintech.kmp_date_time_picker.ui.datepicker.WheelDatePickerView
 import network.chaintech.kmp_date_time_picker.utils.DateTimePickerView
 
 @Composable
-fun DateTimePickerField(
+fun DatePickerField(
     modifier: Modifier = Modifier,
     label: String,
-    placeholder: String = stringResource(id = R.string.click_select),
-    startDateTime: LocalDateTime = LocalDateTime.now(),
-    minDateTime: LocalDateTime = LocalDateTime.MIN(),
-    maxDateTime: LocalDateTime = LocalDateTime.MAX(),
-    onDateTimeSelected: (LocalDateTime) -> Unit,
+    placeholder: String = "Click to select",
+    startDate: LocalDate = LocalDate.now(),
+    prevSelectedDate: LocalDate? = null,
+    minDate: LocalDate = LocalDate.MIN(),
+    maxDate: LocalDate = LocalDate.now(),
+    onDateSelected: (LocalDate) -> Unit,
     onSurface: Boolean = true,
 ) {
     var showPicker by remember { mutableStateOf(false) }
-    var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
+    var selectedDate by remember { mutableStateOf<LocalDate?>(prevSelectedDate) }
 
     Column(modifier = modifier) {
         Text(
@@ -53,16 +47,16 @@ fun DateTimePickerField(
             modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
         )
         OutlinedTextField(
-            value = selectedDateTime?.let {
-                val javaDateTime = it.toJavaLocalDateTime()
-                javaDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+            value = selectedDate?.let {
+                val javaDateTime = it.toJavaLocalDate()
+                javaDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             } ?: "",
             onValueChange = {},
             placeholder = { Text(placeholder) },
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = "Open DateTime Picker",
+                    contentDescription = "Open Date Picker",
                     tint = Color.Gray,
                     modifier = Modifier.clickable { showPicker = true }
                 )
@@ -80,7 +74,7 @@ fun DateTimePickerField(
         )
 
         if (showPicker) {
-            WheelDateTimePickerView(
+            WheelDatePickerView(
                 modifier = modifier,
                 height = 128.dp,
                 showDatePicker = true,
@@ -94,17 +88,17 @@ fun DateTimePickerField(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Normal
                 ),
-                startDate = startDateTime,
-                minDate = minDateTime,
-                maxDate = maxDateTime,
-                timeFormat = TimeFormat.AM_PM,
+                startDate = startDate,
+                minDate = minDate,
+                maxDate = maxDate,
+                dateTimePickerView = DateTimePickerView.BOTTOM_SHEET_VIEW,
                 dateTextStyle = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
                 dateTextColor = MaterialTheme.colorScheme.primary,
-                onDoneClick = { snappedDateTime ->
-                    selectedDateTime = snappedDateTime
-                    onDateTimeSelected(snappedDateTime)
+                onDoneClick = { snappedDate ->
+                    selectedDate = snappedDate
+                    onDateSelected(snappedDate)
                     showPicker = false
                 },
                 onDismiss = { showPicker = false }
