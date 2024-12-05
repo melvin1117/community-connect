@@ -63,17 +63,61 @@
     <string name="travel">Travel</string>
     <string name="done">Done</string>
 
-    <string name="error_title_required">Event title is required</string>
-    <string name="error_description_required">Event description is required</string>
-    <string name="error_invalid_event_date">Event date must be in the future</string>
-    <string name="error_invalid_booking_start_date">Booking start date must be before the event date</string>
-    <string name="error_invalid_booking_end_date">Booking end date must be after the booking start date</string>
-    <string name="error_invalid_capacity">Total capacity must be greater than zero</string>
-    <string name="error_invalid_price">Cost per ticket must be greater than zero</string>
+    <string name="create_event">Create Event</string>
+    <string name="submit">Submit</string>
+    <string name="edit_event">Edit Event</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="event_saved">Event saved successfully!</string>
+    <string name="submitting">Submitting...</string>
+    <string name="error">Error</string>
+    <string name="label_event_title">Title</string>
+    <string name="placeholder_event_title">e.g., Workshop</string>
+    <string name="label_event_description">Description</string>
+    <string name="placeholder_event_description">Provide details</string>
+    <string name="label_category">Category</string>
+    <string name="label_event_date">Event Date</string>
+    <string name="label_booking_start_date">Booking Opens</string>
+    <string name="label_booking_end_date">Booking Closes</string>
+    <string name="label_event_location">Location</string>
+    <string name="placeholder_event_location">Search or add</string>
+    <string name="label_guideline">Guidelines</string>
+    <string name="placeholder_guideline">Any rules?</string>
+    <string name="label_ticket_price">Price</string>
+    <string name="placeholder_ticket_price">e.g., 20.0</string>
+    <string name="label_capacity">Capacity</string>
+    <string name="placeholder_capacity">e.g., 100</string>
+    <string name="label_ticket_limit">Limit per Person</string>
+    <string name="placeholder_ticket_limit">e.g., 2</string>
+    <string name="label_promo_code">Promo Codes</string>
+    <string name="label_event_images">Images</string>
+    <string name="error_title_required">Title is required</string>
+    <string name="error_description_required">Description is required</string>
+    <string name="error_invalid_event_date">Invalid event date</string>
+    <string name="error_invalid_booking_start_date">Invalid booking start</string>
+    <string name="error_invalid_booking_end_date">Invalid booking end</string>
+    <string name="error_invalid_capacity">Invalid capacity</string>
+    <string name="error_invalid_price">Invalid price</string>
 
-    <string name="event_title">Event Title</string>
-    <string name="event_title_placeholder">Enter the event title</string>
-    <string name="event_description">Event Description</string>
-    <string name="event_description_placeholder">Enter detailed information</string>
 
+    <!-- Labels and Placeholders -->
+    <string name="label_code">Code</string>
+    <string name="placeholder_code">Enter code</string>
+    <string name="label_discount">Discount (%)</string>
+    <string name="placeholder_discount">e.g., 10</string>
+    <string name="label_upload_images">Upload Images</string>
+    <string name="upload_button">Upload</string>
+    <string name="upload_icon_description">Attach File</string>
+    <string name="uploaded_image_description">Uploaded Image</string>
+    <string name="dropdown_select_option">Select an option</string>
+
+    <!-- Buttons -->
+    <string name="add_promo_code">Add Promo Code</string>
+    <string name="remove_promo_code">Remove Promo Code</string>
+
+    <!-- Error Messages -->
+    <string name="error_complete_existing_promo_code">Complete existing promo codes before adding a new one.</string>
+    <string name="error_promo_code_unique">Promo codes must be unique.</string>
+    <string name="error_invalid_discount">Discount must be between 0% and 100%.</string>
+
+    <string name="click_select">Click to select</string>
 </resources>

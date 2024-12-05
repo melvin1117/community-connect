@@ -8,10 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.su.communityconnect.model.PromoCode
+import com.su.communityconnect.R
 
 @Composable
 fun PromoCodeCreator(
@@ -23,6 +26,8 @@ fun PromoCodeCreator(
     onValidationError: (String) -> Unit,
     onSurface: Boolean = true,
 ) {
+    val context = LocalContext.current
+
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         // Label with Add Button
         Row(
@@ -40,12 +45,15 @@ fun PromoCodeCreator(
             )
             IconButton(onClick = {
                 if (promoCodes.any { it.code.isBlank() }) {
-                    onValidationError("Complete existing promo codes before adding a new one.")
+                    onValidationError(context.getString(R.string.error_complete_existing_promo_code))
                 } else {
                     onAddPromoCode()
                 }
             }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Promo Code")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.add_promo_code)
+                )
             }
         }
 
@@ -63,7 +71,7 @@ fun PromoCodeCreator(
                         onValueChange = { newCode ->
                             val upperCaseCode = newCode.uppercase()
                             if (promoCodes.any { it.code == upperCaseCode && promoCodes.indexOf(it) != index }) {
-                                onValidationError("Promo codes must be unique.")
+                                onValidationError(context.getString(R.string.error_promo_code_unique))
                             } else {
                                 onUpdatePromoCode(
                                     index,
@@ -71,8 +79,8 @@ fun PromoCodeCreator(
                                 )
                             }
                         },
-                        label = "Code",
-                        placeholder = "Enter code",
+                        label = stringResource(R.string.label_code),
+                        placeholder = stringResource(R.string.placeholder_code),
                         modifier = Modifier.weight(1f)
                     )
 
@@ -87,25 +95,27 @@ fun PromoCodeCreator(
                             } else {
                                 val parsedDiscount = newInput.toDoubleOrNull()
                                 if (parsedDiscount == null || parsedDiscount < 0.0 || parsedDiscount > 100.0) {
-                                    onValidationError("Discount must be between 0% and 100%.")
+                                    onValidationError(context.getString(R.string.error_invalid_discount))
                                 } else {
                                     rawInputDiscount = newInput
                                     onUpdatePromoCode(index, promoCode.copy(discount = parsedDiscount))
                                 }
                             }
                         },
-                        label = "Discount (%)",
-                        placeholder = "Enter discount",
+                        label = stringResource(R.string.label_discount),
+                        placeholder = stringResource(R.string.placeholder_discount),
                         keyboardType = KeyboardType.Number,
                         modifier = Modifier.weight(1f)
                     )
-
 
                     // Remove Button
                     IconButton(
                         onClick = { onRemovePromoCode(index) }
                     ) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Remove Promo Code")
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.remove_promo_code)
+                        )
                     }
                 }
             }

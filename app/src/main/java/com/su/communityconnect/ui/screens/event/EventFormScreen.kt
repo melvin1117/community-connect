@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -19,6 +20,7 @@ import com.su.communityconnect.model.EventLocation
 import com.su.communityconnect.model.PromoCode
 import com.su.communityconnect.ui.components.*
 import com.su.communityconnect.utils.convertUriListToStringList
+import com.su.communityconnect.R
 
 @Composable
 fun EventFormScreen(
@@ -32,25 +34,22 @@ fun EventFormScreen(
     val context = LocalContext.current
     val categories = viewModel.categories.collectAsState()
 
-    // State to track loading status
     var isLoading by remember { mutableStateOf(false) }
 
-    // Initialize form state if editing an existing event
     LaunchedEffect(existingEvent) {
         existingEvent?.let { viewModel.initializeForm(it) }
     }
 
-    // Observe validation errors
     LaunchedEffect(validationError.value) {
         validationError.value?.let { error ->
             val errorMessage = when (error) {
-                EventValidationError.TITLE_REQUIRED -> "Title is required"
-                EventValidationError.DESCRIPTION_REQUIRED -> "Description is required"
-                EventValidationError.INVALID_EVENT_DATE -> "Invalid Event Date"
-                EventValidationError.INVALID_BOOKING_START_DATE -> "Invalid Booking Start Date"
-                EventValidationError.INVALID_BOOKING_END_DATE -> "Invalid Booking End Date"
-                EventValidationError.INVALID_CAPACITY -> "Invalid Capacity"
-                EventValidationError.INVALID_PRICE -> "Invalid Price"
+                EventValidationError.TITLE_REQUIRED -> context.getString(R.string.error_title_required)
+                EventValidationError.DESCRIPTION_REQUIRED -> context.getString(R.string.error_description_required)
+                EventValidationError.INVALID_EVENT_DATE -> context.getString(R.string.error_invalid_event_date)
+                EventValidationError.INVALID_BOOKING_START_DATE -> context.getString(R.string.error_invalid_booking_start_date)
+                EventValidationError.INVALID_BOOKING_END_DATE -> context.getString(R.string.error_invalid_booking_end_date)
+                EventValidationError.INVALID_CAPACITY -> context.getString(R.string.error_invalid_capacity)
+                EventValidationError.INVALID_PRICE -> context.getString(R.string.error_invalid_price)
             }
             Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
         }
@@ -58,7 +57,6 @@ fun EventFormScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLoading) {
-            // Show loading indicator
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -66,7 +64,7 @@ fun EventFormScreen(
             ) {
                 CircularProgressIndicator()
                 Text(
-                    text = "Submitting...",
+                    text = stringResource(R.string.submitting),
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -90,25 +88,24 @@ fun EventFormScreen(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = if (existingEvent == null) "Create Event" else "Edit Event",
+                        text = if (existingEvent == null) stringResource(R.string.create_event) else stringResource(R.string.edit_event),
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp)) // Add space below the title
+                Spacer(modifier = Modifier.height(8.dp))
 
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
                         TextField(
                             value = formState.value.title,
                             onValueChange = { viewModel.updateForm { copy(title = it) } },
-                            label = "Event Title",
-                            placeholder = "Enter event title"
+                            label = stringResource(R.string.label_event_title),
+                            placeholder = stringResource(R.string.placeholder_event_title)
                         )
                     }
 
@@ -116,15 +113,15 @@ fun EventFormScreen(
                         TextField(
                             value = formState.value.description,
                             onValueChange = { viewModel.updateForm { copy(description = it) } },
-                            label = "Event Description",
-                            placeholder = "Enter event description",
+                            label = stringResource(R.string.label_event_description),
+                            placeholder = stringResource(R.string.placeholder_event_description),
                             isTextArea = true
                         )
                     }
 
                     item {
                         DropdownField(
-                            label = "Category",
+                            label = stringResource(R.string.label_category),
                             options = categories.value.map { DropdownOption(it.id, it.name) },
                             selectedOptionId = formState.value.category,
                             onOptionSelected = { selectedId ->
@@ -135,30 +132,30 @@ fun EventFormScreen(
 
                     item {
                         DateTimePickerField(
-                            label = "Event Happening Timestamp",
+                            label = stringResource(R.string.label_event_date),
                             onDateTimeSelected = { viewModel.updateForm { copy(eventDate = it) } }
                         )
                     }
 
                     item {
                         DateTimePickerField(
-                            label = "Booking Start Timestamp",
-                            onDateTimeSelected = { viewModel.updateForm { copy(bookingStartDate = it) } },
+                            label = stringResource(R.string.label_booking_start_date),
+                            onDateTimeSelected = { viewModel.updateForm { copy(bookingStartDate = it) } }
                         )
                     }
 
                     item {
                         DateTimePickerField(
-                            label = "Booking End Timestamp",
-                            onDateTimeSelected = { viewModel.updateForm { copy(bookingEndDate = it) } },
+                            label = stringResource(R.string.label_booking_end_date),
+                            onDateTimeSelected = { viewModel.updateForm { copy(bookingEndDate = it) } }
                         )
                     }
 
                     item {
                         LocationAutocompleteField(
                             context = context,
-                            label = "Event Location",
-                            placeholder = "Search for a location",
+                            label = stringResource(R.string.label_event_location),
+                            placeholder = stringResource(R.string.placeholder_event_location),
                             onLocationSelected = { id, city, shortAddress, fullAddress, lat, lng, displayName ->
                                 viewModel.updateForm {
                                     copy(
@@ -181,8 +178,8 @@ fun EventFormScreen(
                         TextField(
                             value = formState.value.guideline,
                             onValueChange = { viewModel.updateForm { copy(guideline = it) } },
-                            label = "Guideline",
-                            placeholder = "Enter event guidelines",
+                            label = stringResource(R.string.label_guideline),
+                            placeholder = stringResource(R.string.placeholder_guideline),
                             isTextArea = true
                         )
                     }
@@ -192,20 +189,16 @@ fun EventFormScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            // Ensure rawInput reflects the prefilled value of costPerTicket
                             var rawCostPerTicketInput by remember { mutableStateOf(formState.value.costPerTicket.toString()) }
 
                             TextField(
                                 value = rawCostPerTicketInput,
-                                onValueChange = { input ->
+                                onValueChange = { input -> 
                                     if (input.isEmpty()) {
-                                        // Handle empty input (e.g., user cleared the field)
                                         rawCostPerTicketInput = ""
                                         viewModel.updateForm { copy(costPerTicket = 0.0) }
                                     } else {
-                                        // Validate and allow partial decimals (like "25." or "25.6")
-                                        val isValid =
-                                            input.toDoubleOrNull() != null || input.endsWith(".")
+                                        val isValid = input.toDoubleOrNull() != null || input.endsWith(".")
                                         if (isValid) {
                                             rawCostPerTicketInput = input
                                             val parsedValue = input.toDoubleOrNull() ?: 0.0
@@ -213,8 +206,8 @@ fun EventFormScreen(
                                         }
                                     }
                                 },
-                                label = "Cost Per Ticket",
-                                placeholder = "Enter ticket price",
+                                label = stringResource(R.string.label_ticket_price),
+                                placeholder = stringResource(R.string.placeholder_ticket_price),
                                 keyboardType = KeyboardType.Decimal,
                                 modifier = Modifier.weight(1f)
                             )
@@ -236,12 +229,11 @@ fun EventFormScreen(
                                         }
                                     }
                                 },
-                                label = "Total Capacity",
-                                placeholder = "Enter total capacity",
+                                label = stringResource(R.string.label_capacity),
+                                placeholder = stringResource(R.string.placeholder_capacity),
                                 keyboardType = KeyboardType.Number,
                                 modifier = Modifier.weight(1f)
                             )
-
                         }
                     }
 
@@ -267,15 +259,15 @@ fun EventFormScreen(
                                     }
                                 }
                             },
-                            label = "Ticket Limit per Account",
-                            placeholder = "Enter ticket limit count",
+                            label = stringResource(R.string.label_ticket_limit),
+                            placeholder = stringResource(R.string.placeholder_ticket_limit),
                             keyboardType = KeyboardType.Number
                         )
                     }
 
                     item {
                         PromoCodeCreator(
-                            label = "Promo Code",
+                            label = stringResource(R.string.label_promo_code),
                             promoCodes = formState.value.promoCode,
                             onAddPromoCode = {
                                 viewModel.updateForm {
@@ -285,15 +277,15 @@ fun EventFormScreen(
                             onRemovePromoCode = { index ->
                                 viewModel.updateForm {
                                     copy(
-                                        promoCode = promoCode.toMutableList()
-                                            .apply { removeAt(index) })
+                                        promoCode = promoCode.toMutableList().apply { removeAt(index) }
+                                    )
                                 }
                             },
                             onUpdatePromoCode = { index, updatedPromoCode ->
                                 viewModel.updateForm {
                                     copy(
-                                        promoCode = promoCode.toMutableList()
-                                            .apply { set(index, updatedPromoCode) })
+                                        promoCode = promoCode.toMutableList().apply { set(index, updatedPromoCode) }
+                                    )
                                 }
                             },
                             onValidationError = { errorMessage ->
@@ -304,15 +296,11 @@ fun EventFormScreen(
 
                     item {
                         ImageUploaderField(
-                            label = "Event Images",
+                            label = stringResource(R.string.label_event_images),
                             maxImages = 5,
                             onImagesSelected = { images ->
                                 viewModel.updateForm {
-                                    copy(
-                                        images = convertUriListToStringList(
-                                            images
-                                        )
-                                    )
+                                    copy(images = convertUriListToStringList(images))
                                 }
                             }
                         )
@@ -321,11 +309,11 @@ fun EventFormScreen(
                     item {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End // Align the button to the right
+                            horizontalArrangement = Arrangement.End
                         ) {
                             PrimaryButton(
                                 horizontalPadding = 20.dp,
-                                text = if (existingEvent == null) "Create Event" else "Save Changes",
+                                text = if (existingEvent == null) stringResource(R.string.submit) else stringResource(R.string.save_changes),
                                 onClick = {
                                     isLoading = true
                                     viewModel.validateAndSaveEvent(
@@ -333,7 +321,7 @@ fun EventFormScreen(
                                             isLoading = false
                                             Toast.makeText(
                                                 context,
-                                                "Event saved successfully!",
+                                                context.getString(R.string.event_saved),
                                                 Toast.LENGTH_LONG
                                             ).show()
                                             onEventSaved()
@@ -342,7 +330,7 @@ fun EventFormScreen(
                                             isLoading = false
                                             Toast.makeText(
                                                 context,
-                                                "Error: $errorMessage",
+                                                "${context.getString(R.string.error)}: $errorMessage",
                                                 Toast.LENGTH_LONG
                                             ).show()
                                         }
@@ -356,4 +344,3 @@ fun EventFormScreen(
         }
     }
 }
-

@@ -11,8 +11,10 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.su.communityconnect.R
 
 data class DropdownOption(
     val id: String,
@@ -27,6 +29,7 @@ fun DropdownField(
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     onSurface: Boolean = true,
+    placeholder: String = stringResource(id = R.string.dropdown_select_option),
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedOption = options.find { it.id == selectedOptionId }?.value.orEmpty()
@@ -46,7 +49,7 @@ fun DropdownField(
             OutlinedTextField(
                 value = selectedOption,
                 onValueChange = {},
-                placeholder = { Text("Select an option") },
+                placeholder = { Text(placeholder) },
                 readOnly = true,
                 shape = RoundedCornerShape(50.dp),
                 trailingIcon = {
@@ -71,8 +74,8 @@ fun DropdownField(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier
-                .fillMaxWidth() // Match the width of the OutlinedTextField
-                .padding(horizontal = 4.dp) // Add some padding for better aesthetics
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
         ) {
             options.forEach { option ->
                 DropdownMenuItem(

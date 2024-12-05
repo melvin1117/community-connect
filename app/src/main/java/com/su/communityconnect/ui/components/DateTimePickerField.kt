@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -22,12 +23,13 @@ import network.chaintech.kmp_date_time_picker.utils.MIN
 import network.chaintech.kmp_date_time_picker.utils.TimeFormat
 import network.chaintech.kmp_date_time_picker.utils.now
 import java.time.format.DateTimeFormatter
+import com.su.communityconnect.R
 
 @Composable
 fun DateTimePickerField(
     modifier: Modifier = Modifier,
-    label: String = "Select Date & Time",
-    placeholder: String = "Click to select",
+    label: String,
+    placeholder: String = stringResource(id = R.string.click_select),
     startDateTime: LocalDateTime = LocalDateTime.now(),
     minDateTime: LocalDateTime = LocalDateTime.MIN(),
     maxDateTime: LocalDateTime = LocalDateTime.MAX(),
