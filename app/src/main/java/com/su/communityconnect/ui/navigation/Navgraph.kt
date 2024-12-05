@@ -11,6 +11,9 @@ import com.su.communityconnect.HOME_SCREEN
 import com.su.communityconnect.SIGN_IN_SCREEN
 import com.su.communityconnect.SIGN_UP_SCREEN
 import com.su.communityconnect.SPLASH_SCREEN
+import com.su.communityconnect.FAVOURITE_SCREEN
+import com.su.communityconnect.SEARCH_EVENT_SCREEN
+import com.su.communityconnect.CREATE_EVENT_SCREEN
 import com.su.communityconnect.model.service.AccountService
 import com.su.communityconnect.ui.screens.authentication.signin.SignInScreen
 import com.su.communityconnect.ui.screens.authentication.signup.SignUpScreen
@@ -73,6 +76,14 @@ fun NavGraph(
                     navController.navigate(SIGN_IN_SCREEN) {
                         popUpTo(HOME_SCREEN) { inclusive = true }
                     }
+                },
+                onNavigateToOtherScreen = { screen: String ->
+                    when (screen) {
+                        "HOME_SCREEN" -> navController.navigate(HOME_SCREEN) // Navigate to Category Screen
+                        "FAVORITES_SCREEN" -> navController.navigate(FAVOURITE_SCREEN) // Navigate to Favorites Screen
+                        "SEARCH_SCREEN" -> navController.navigate(SEARCH_EVENT_SCREEN) // Navigate to Search Screen
+                        "ADD_SCREEN" -> navController.navigate(CREATE_EVENT_SCREEN) // Navigate to Add Screen
+                    }
                 }
             )
         }
@@ -89,5 +100,21 @@ fun NavGraph(
                 }
             )
         }
-    }
+        composable(FAVOURITE_SCREEN) {
+                   /* FavoritesScreen(
+                        onNavigateBack = { navController.popBackStack() }
+                    )*/
+                }
+        composable(SEARCH_EVENT_SCREEN) {
+                   /* SearchScreen(
+                        onNavigateBack = { navController.popBackStack() }
+                    )*/
+                }
+        composable(CREATE_EVENT_SCREEN) {
+                    /*AddScreen(
+                        onNavigateBack = { navController.popBackStack() }
+                    )*/
+                }
+
+        }
 }

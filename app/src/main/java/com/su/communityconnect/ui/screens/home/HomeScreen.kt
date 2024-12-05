@@ -1,9 +1,11 @@
 package com.su.communityconnect.ui.screens.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,7 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.su.communityconnect.CREATE_EVENT_SCREEN
+import com.su.communityconnect.FAVOURITE_SCREEN
+import com.su.communityconnect.HOME_SCREEN
 import com.su.communityconnect.R
+import com.su.communityconnect.SEARCH_EVENT_SCREEN
+import com.su.communityconnect.ui.components.BottomNavBar
 import com.su.communityconnect.ui.components.EventCard
 import com.su.communityconnect.ui.components.PrimaryButton
 
@@ -23,88 +30,116 @@ import com.su.communityconnect.ui.components.PrimaryButton
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     selectedCategories: List<String>,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onNavigateToOtherScreen : (String)->Unit
 ) {
+    var selectedNavItem by remember { mutableStateOf(0) }
     var favoriteEvent by remember { mutableStateOf("") }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(16.dp))
-        selectedCategories.forEach { category ->
-            Text(
-                text = category,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(4.dp)
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                selectedItem = selectedNavItem,
+                onItemSelected = { index ->
+                    selectedNavItem = index
+                    when (index) {
+                        0 -> onNavigateToOtherScreen(HOME_SCREEN) // Navigate to Home
+                        1 -> onNavigateToOtherScreen(SEARCH_EVENT_SCREEN) // Navigate to Search event
+                        2 -> onNavigateToOtherScreen(FAVOURITE_SCREEN) // Navigate to Favourite Screen
+                        3 -> onNavigateToOtherScreen(CREATE_EVENT_SCREEN) // Navigate to create Screen
+                    }
+                }
             )
         }
-        Text(text = "Welcome to the Home Screen!")
-        Spacer(modifier = Modifier.height(16.dp))
-        PrimaryButton(
-            text = stringResource(id = R.string.logout),
-            onClick = { viewModel.logout(onLogout) }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Selected Categories:",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyRow(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(16.dp)
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(paddingValues)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+
         ) {
-            items(sampleEvents.size) { index ->
-                val event = sampleEvents[index]
-                EventCard(
-                    imageRes = event.imageRes,
-                    badgeText = event.badgeText,
-                    title = event.title,
-                    date = event.date,
-                    time = event.time,
-                    location = event.location,
-                    status = event.status,
-                    isFavorite = favoriteEvent == event.title,
-                    onFavoriteClick = {
-                        favoriteEvent = if (favoriteEvent == event.title) "" else event.title
-                    }
+            Spacer(modifier = Modifier.height(16.dp))
+            selectedCategories.forEach { category ->
+                Text(
+                    text = category,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .padding(4.dp)
+
                 )
+            }
+            Text(
+                text = "Welcome to the Home Screen!",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.background,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            PrimaryButton(
+                text = stringResource(id = R.string.logout),
+                onClick = { viewModel.logout(onLogout) }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Categories:",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.background,
+
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyRow(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                items(sampleEvents.size) { index ->
+                    val event = sampleEvents[index]
+                    EventCard(
+                        imageRes = event.imageRes,
+                        badgeText = event.badgeText,
+                        title = event.title,
+                        date = event.date,
+                        time = event.time,
+                        location = event.location,
+                        status = event.status,
+                        isFavorite = favoriteEvent == event.title,
+                        onFavoriteClick = {
+                            favoriteEvent = if (favoriteEvent == event.title) "" else event.title
+                        }
+                    )
+                }
             }
         }
     }
 }
-data class Event(
-    val imageRes: Int,
-    val badgeText: String,
-    val title: String,
-    val date: String,
-    val time: String,
-    val location: String,
-    val status: String
-)
-
-val sampleEvents = listOf(
-    Event(
-        imageRes = R.drawable.default_event,
-        badgeText = "Top",
-        title = "Astronomy on Tap | Nov 17, 2024",
-        date = "Nov 17, 2024",
-        time = "06:30 - 08:30 PM",
-        location = "Recess, Syracuse",
-        status = "Free"
-    ),
-    Event(
-        imageRes = R.drawable.default_event,
-        badgeText = "Featured",
-        title = "Music Night | Nov 25, 2024",
-        date = "Nov 25, 2024",
-        time = "07:00 - 10:00 PM",
-        location = "Downtown Arena",
-        status = "Paid"
+    data class Event(
+        val imageRes: Int,
+        val badgeText: String,
+        val title: String,
+        val date: String,
+        val time: String,
+        val location: String,
+        val status: String
     )
-)
+
+    val sampleEvents = listOf(
+        Event(
+            imageRes = R.drawable.default_event,
+            badgeText = "Top",
+            title = "Astronomy on Tap | Nov 17, 2024",
+            date = "Nov 17, 2024",
+            time = "06:30 - 08:30 PM",
+            location = "Recess, Syracuse",
+            status = "Free"
+        ),
+        Event(
+            imageRes = R.drawable.default_event,
+            badgeText = "Featured",
+            title = "Music Night | Nov 25, 2024",
+            date = "Nov 25, 2024",
+            time = "07:00 - 10:00 PM",
+            location = "Downtown Arena",
+            status = "Paid"
+        )
+    )

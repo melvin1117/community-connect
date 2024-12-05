@@ -34,8 +34,11 @@ fun CategoryCard(
             .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .background(color = MaterialTheme.colorScheme.background)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
+
         ) {
             Image(
                 painter = painterResource(id = imageRes),
@@ -44,13 +47,12 @@ fun CategoryCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(90.dp)
-                    .background(MaterialTheme.colorScheme.background)
             )
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelLarge,
                 fontSize = 14.sp,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
                 modifier = Modifier.padding(8.dp)
 
             )
