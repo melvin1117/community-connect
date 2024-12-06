@@ -43,4 +43,10 @@ object UserState {
             userService?.saveUser(user)
         }
     }
+
+    fun clear() {
+        _userState.value = null
+        userService = null
+        userId = null
+    }
 }
