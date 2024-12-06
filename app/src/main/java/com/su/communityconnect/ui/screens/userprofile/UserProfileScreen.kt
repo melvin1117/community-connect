@@ -16,11 +16,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.su.communityconnect.ui.components.*
+import com.su.communityconnect.R
 import kotlinx.datetime.LocalDate
 import network.chaintech.kmp_date_time_picker.utils.now
+import java.time.format.DateTimeParseException
 
 @Composable
 fun UserProfileScreen(
@@ -58,9 +61,7 @@ fun UserProfileScreen(
                         ProfilePicture(
                             imageUrl = profileImageUri?.toString() ?: user.profilePictureUrl,
                             displayName = user.displayName,
-                            onImageSelected = { uri ->
-                                profileImageUri = uri
-                            },
+                            onImageSelected = { uri -> profileImageUri = uri },
                             size = 120
                         )
                     }
@@ -69,33 +70,47 @@ fun UserProfileScreen(
                         value = user.displayName,
                         onValueChange = {
                             if (it.any { char -> char.isDigit() }) {
-                                nameError = "Name cannot contain numbers."
+                                nameError = context.getString(R.string.error_name_contains_numbers)
                             } else {
                                 nameError = null
                                 viewModel.updateUser(user.copy(displayName = it))
                             }
                         },
-                        label = "Full Name",
-                        placeholder = "Enter your name",
+                        label = stringResource(R.string.label_full_name),
+                        placeholder = stringResource(R.string.placeholder_full_name),
                         errorMessage = nameError
                     )
 
                     TextField(
                         value = user.email,
                         onValueChange = {},
-                        label = "Email",
-                        placeholder = "Your email address",
+                        label = stringResource(R.string.label_email),
+                        placeholder = stringResource(R.string.placeholder_email),
                         readOnly = true
                     )
 
                     DatePickerField(
-                        label = "Date of Birth",
-                        placeholder = "Select your date of birth",
-                        startDate = user.dateOfBirth?.let { LocalDate.parse(it) } ?: LocalDate.now(),
-                        prevSelectedDate = user.dateOfBirth?.let { LocalDate.parse(it) } ?: null,
+                        label = stringResource(R.string.label_date_of_birth),
+                        placeholder = stringResource(R.string.placeholder_date_of_birth),
+                        startDate = if (!user.dateOfBirth.isNullOrBlank()) {
+                            try {
+                                LocalDate.parse(user.dateOfBirth)
+                            } catch (e: DateTimeParseException) {
+                                LocalDate.now() // Default to current date if parsing fails
+                            }
+                        } else {
+                            LocalDate.now() // Default to current date if dateOfBirth is null or blank
+                        },
+                        prevSelectedDate = user.dateOfBirth?.takeIf { it.isNotBlank() }?.let {
+                            try {
+                                LocalDate.parse(it)
+                            } catch (e: DateTimeParseException) {
+                                null // Return null if parsing fails
+                            }
+                        },
                         onDateSelected = { date ->
                             if (date >= LocalDate.now()) {
-                                dobErrorMessage = "Date of Birth must be in the past."
+                                dobErrorMessage = context.getString(R.string.error_dob_future)
                             } else {
                                 dobErrorMessage = null
                                 viewModel.updateUser(user.copy(dateOfBirth = date.toString()))
@@ -114,27 +129,25 @@ fun UserProfileScreen(
                         value = user.phone,
                         onValueChange = { input ->
                             if (input.isEmpty()) {
-                                // Allow backspace to clear the input
                                 mobileNumberError = null
                                 viewModel.updateUser(user.copy(phone = ""))
                             } else {
-                                val regex = "^[+]?[0-9]{0,15}\$".toRegex() // Allow partial inputs during typing
+                                val regex = "^[+]?[0-9]{0,15}\$".toRegex()
                                 if (!regex.matches(input)) {
-                                    mobileNumberError = "Invalid phone number format."
+                                    mobileNumberError = context.getString(R.string.error_invalid_phone)
                                 } else {
                                     mobileNumberError = null
                                     viewModel.updateUser(user.copy(phone = input))
                                 }
                             }
                         },
-                        label = "Phone Number",
-                        placeholder = "Enter your phone number",
+                        label = stringResource(R.string.label_phone_number),
+                        placeholder = stringResource(R.string.placeholder_phone_number),
                         keyboardType = KeyboardType.Phone,
                         errorMessage = mobileNumberError
                     )
 
-
-                    Text("Gender", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(R.string.label_gender), style = MaterialTheme.typography.titleSmall)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -143,19 +156,19 @@ fun UserProfileScreen(
                             selected = user.gender == "Male",
                             onClick = { viewModel.updateUser(user.copy(gender = "Male")) }
                         )
-                        Text("Male")
+                        Text(stringResource(R.string.gender_male))
 
                         RadioButton(
                             selected = user.gender == "Female",
                             onClick = { viewModel.updateUser(user.copy(gender = "Female")) }
                         )
-                        Text("Female")
+                        Text(stringResource(R.string.gender_female))
 
                         RadioButton(
                             selected = user.gender == "Other",
                             onClick = { viewModel.updateUser(user.copy(gender = "Other")) }
                         )
-                        Text("Other")
+                        Text(stringResource(R.string.gender_other))
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -165,15 +178,15 @@ fun UserProfileScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         OutlinedButton(onClick = { onBackClick() }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.button_cancel), color = MaterialTheme.colorScheme.onSurface)
                         }
 
                         PrimaryButton(
-                            text = "Save Changes",
+                            text = stringResource(R.string.button_save_changes),
                             onClick = {
                                 val validationErrors = listOfNotNull(
-                                    if (user.displayName.isEmpty()) "Name cannot be empty." else null,
-                                    if (profileImageUri == null && user.profilePictureUrl.isEmpty()) "Profile picture is required." else null,
+                                    if (user.displayName.isEmpty()) context.getString(R.string.error_name_empty) else null,
+                                    if (profileImageUri == null && user.profilePictureUrl.isEmpty()) context.getString(R.string.error_profile_picture_required) else null,
                                     dobErrorMessage,
                                     mobileNumberError
                                 )
@@ -184,7 +197,7 @@ fun UserProfileScreen(
                                         onSuccess = {
                                             Toast.makeText(
                                                 context,
-                                                "Profile saved successfully!",
+                                                context.getString(R.string.profile_saved_successfully),
                                                 Toast.LENGTH_LONG
                                             ).show()
                                             onBackClick()
@@ -209,7 +222,3 @@ fun UserProfileScreen(
         }
     }
 }
-
-
-
-

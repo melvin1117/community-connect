@@ -35,7 +35,7 @@ private val DarkColorPalette = darkColorScheme(
     onBackground = DarkOnBackground,
     onSurface = DarkOnSurface,
     onSecondary = DarkOnBackgroundSecondary,
-    onTertiary = DarkLinkText
+    onTertiary = DarkLinkText,
 )
 
 private val defaultTypography = Typography()

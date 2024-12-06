@@ -141,7 +141,10 @@ fun LocationAutocompleteField(
 
                                 // Extract city from address components
                                 val city = place.addressComponents?.asList()
-                                    ?.firstOrNull { it.types.contains("locality") }?.name ?: ""
+                                ?.firstOrNull { it.types.contains("locality") }?.name
+                                ?: displayName // Use displayName as a fallback
+                                ?: shortAddress // Use shortAddress as a fallback
+                                ?: "Unknown City" // Default fallback
 
                                 // Pass details to callback
                                 onLocationSelected(

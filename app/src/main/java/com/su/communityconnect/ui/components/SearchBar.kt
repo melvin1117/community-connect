@@ -3,6 +3,8 @@ package com.su.communityconnect.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +33,7 @@ fun SearchBar(
         shape = RoundedCornerShape(50.dp),
         leadingIcon = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_search),
+                imageVector = Icons.Outlined.Search,
                 contentDescription = "Search Icon",
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(24.dp)

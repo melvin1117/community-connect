@@ -27,6 +27,7 @@ fun ProfilePicture(
     displayName: String?,
     onImageSelected: (Uri) -> Unit,
     modifier: Modifier = Modifier,
+    profileClicked: (() -> Unit)? = null,
     size: Int = 100
 ) {
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -49,7 +50,14 @@ fun ProfilePicture(
             .size(size.dp)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-            .clickable { launcher.launch("image/*") }
+            .clickable {
+                if (profileClicked != null) {
+
+                    profileClicked()
+                } else {
+                    launcher.launch("image/*")
+                }
+            }
             .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
     ) {
         if (!imageUrl.isNullOrEmpty()) {
