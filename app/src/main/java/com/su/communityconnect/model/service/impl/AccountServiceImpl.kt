@@ -66,8 +66,20 @@ class AccountServiceImpl @Inject constructor(
     override suspend fun signInWithGoogle(idToken: String) {
         val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
         val result = Firebase.auth.signInWithCredential(firebaseCredential).await()
-        val user = result.user?.toCommunityConnectUser() ?: return
-        userService.saveUser(user)
+        val firebaseUser = result.user ?: return
+
+        // Fetch user data from the database
+        val dbUser = userService.getUser(firebaseUser.uid)
+
+        val userToSave = if (dbUser != null) {
+            // Merge existing database user data with Firebase user data
+            firebaseUser.toCommunityConnectUser(dbUser)
+        } else {
+            // First-time login, create a new user object
+            firebaseUser.toCommunityConnectUser()
+        }
+
+        userService.saveUser(userToSave)
     }
 
     override suspend fun signInWithEmail(email: String, password: String) {
@@ -106,4 +118,30 @@ class AccountServiceImpl @Inject constructor(
         )
     }
 
+    private fun FirebaseUser.toCommunityConnectUser(dbUser: User? = null): User {
+        return dbUser?.copy(
+            email = this.email ?: dbUser.email,
+            provider = this.providerData.firstOrNull()?.providerId ?: dbUser.provider,
+            displayName = this.displayName ?: dbUser.displayName,
+            profilePictureUrl = this.photoUrl?.toString() ?: dbUser.profilePictureUrl,
+            phone = this.phoneNumber ?: dbUser.phone,
+            dateOfBirth = dbUser.dateOfBirth, // Retain existing value
+            gender = dbUser.gender, // Retain existing value
+            preferredCategories = dbUser.preferredCategories, // Retain existing value
+            wishlist = dbUser.wishlist // Retain existing value
+        )
+            ?:
+            User(
+                id = this.uid,
+                email = this.email.orEmpty(),
+                provider = this.providerData.firstOrNull()?.providerId.orEmpty(),
+                displayName = this.displayName.orEmpty(),
+                profilePictureUrl = this.photoUrl?.toString().orEmpty(),
+                phone = this.phoneNumber.orEmpty(),
+                dateOfBirth = "", // Default value
+                gender = "", // Default value
+                preferredCategories = emptyList(), // Default value
+                wishlist = emptyList() // Default value
+            )
+    }
 }

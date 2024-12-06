@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import com.google.android.libraries.places.api.Places
 import com.su.communityconnect.model.service.AccountService
+import com.su.communityconnect.model.service.UserService
 import com.su.communityconnect.ui.navigation.NavGraph
 import com.su.communityconnect.ui.theme.CommunityConnectTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,6 +21,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var accountService: AccountService
 
+    @Inject
+    lateinit var userService: UserService
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,20 +32,20 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             CommunityConnectTheme {
-                AppContent(accountService = accountService)
+                AppContent(accountService = accountService, userService = userService)
             }
         }
     }
 }
 
 @Composable
-fun AppContent(accountService: AccountService) {
+fun AppContent(accountService: AccountService, userService: UserService) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface
     ) {
         Box {
-            NavGraph(accountService = accountService)
+            NavGraph(accountService = accountService, userService = userService)
         }
     }
 }
