@@ -38,4 +38,8 @@ class EventServiceImpl @Inject constructor(
     override fun generateEventId(): String {
         return java.util.UUID.randomUUID().toString()
     }
+
+    override suspend fun getTrendingEvents(location: String): List<Event> {
+        return eventRepository.getTrendingEvents(location)
+    }
 }

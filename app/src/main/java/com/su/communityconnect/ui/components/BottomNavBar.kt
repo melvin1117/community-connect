@@ -25,9 +25,8 @@ fun BottomNavBar(
 ) {
     val items = listOf(
         BottomNavItem("Home", Icons.Outlined.Home),
-        BottomNavItem("Search", Icons.Outlined.Search),
+        BottomNavItem("Add", Icons.Outlined.AddCircleOutline),
         BottomNavItem("Favorites", Icons.Outlined.FavoriteBorder),
-        BottomNavItem("Add", Icons.Outlined.AddCircleOutline)
     )
 
     Column(

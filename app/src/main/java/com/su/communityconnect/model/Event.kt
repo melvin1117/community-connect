@@ -12,13 +12,13 @@ data class Event(
     val location: EventLocation = EventLocation(),
     val eventTimestamp: LocalDateTime = LocalDateTime.now(),
     val createdBy: String = "",
-    val maxTickets: Int = 0,
+    val maxTickets: Int = 2,
     val price: Double = 0.0,
     val ticketLifecycle: TicketLifecycle = TicketLifecycle(),
     val perUserTicketLimit: Int = 0,
     val images: List<String> = emptyList(),
     val eventCreationTimestamp: LocalDateTime = LocalDateTime.now(),
-    val promoCode: List<PromoCode>,
+    val promoCode: List<PromoCode> = emptyList(),
 )
 
 data class EventLocation(
@@ -37,8 +37,8 @@ data class TicketLifecycle(
 )
 
 data class PromoCode(
-    val code: String,
-    val discount: Double,
+    val code: String = "",
+    val discount: Double = 0.0,
 )
 
 data class EventDTO(

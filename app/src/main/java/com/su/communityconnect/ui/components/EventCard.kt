@@ -1,8 +1,10 @@
 package com.su.communityconnect.ui.components
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -11,121 +13,141 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import com.su.communityconnect.model.Event
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toJavaLocalTime
+import java.time.format.DateTimeFormatter
+import com.su.communityconnect.R
 
 @Composable
 fun EventCard(
-    imageRes: Int,
-    badgeText: String,
-    title: String,
-    date: String,
-    time: String,
-    location: String,
-    status: String,
+    event: Event,
     isFavorite: Boolean,
-    onFavoriteClick: () -> Unit,
+    onFavoriteClick: (String) -> Unit,
+    onEventClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
+    val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
+
     Card(
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier
-            .width(250.dp)
-            .fillMaxWidth()
-            .padding(8.dp),
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier
+            .fillMaxWidth() // Full width provided by the parent
+            .height(250.dp) // Fixed height for the card
+            .clickable { onEventClick(event.id) },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        )
     ) {
-        Column(
-            modifier = Modifier.background(MaterialTheme.colorScheme.background)
-        ) {
-            // Image Section
+        Column {
+            // Event Image Section (70% of card height)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(95.dp)
+                    .weight(7f) // 70% of the height
             ) {
                 Image(
-                    painter = painterResource(id = imageRes),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    painter = rememberAsyncImagePainter(
+                        model = event.images.firstOrNull() ?: "",
+                        error = painterResource(R.drawable.default_event),
+                        placeholder = painterResource(R.drawable.default_event)
+                    ),
+                    contentDescription = event.title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
                 )
 
-                // Badge for Top or Featured
+                // Top Left Label
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = MaterialTheme.shapes.small
+                            MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(bottomEnd = 8.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = badgeText,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontWeight = FontWeight.Bold
-                        )
+                        text = event.category.replaceFirstChar { it.uppercase() }, // Convert to Title Case
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
 
-                // Favorite Icon
-                Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
+                // Wishlist Button
+                Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
-                        .size(24.dp)
-                        .clickable { onFavoriteClick() }
-                )
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75f))
+                        .clickable { onFavoriteClick(event.id) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Wishlist Icon",
+                        tint = if (isFavorite) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
 
-            // Content Section
+            // Event Details Section (30% of card height)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .weight(3f) // 30% of the height
+                    .padding(vertical = 12.dp, horizontal = 16.dp)
             ) {
-                // Event Title
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Event Date, Time, and Location
-                Text(
-                    text = "$date | $time, $location",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Event Status (Free or Paid)
-                Text(
-                    text = status,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = if (status == "Free") MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.error
+                // Title and Date Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "${event.title} | ${event.eventTimestamp.date.toJavaLocalDate().format(dateFormatter)}",
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Bold
                     )
-                )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Time, Location, and Price Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "${event.eventTimestamp.time.toJavaLocalTime().format(timeFormatter)} at ${event.location.displayName}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Text(
+                        text = if (event.price > 0) "$${event.price}" else "Free",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = if (event.price > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                    )
+                }
             }
         }
     }
 }
+

@@ -3,6 +3,7 @@ package com.su.communityconnect.ui.screens.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationOn
@@ -13,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -21,8 +23,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.su.communityconnect.model.provider.LocationProvider
 import com.su.communityconnect.model.state.UserState
+import com.su.communityconnect.ui.components.EventCard
 import com.su.communityconnect.ui.components.ProfilePicture
 import com.su.communityconnect.ui.components.SideNavigationDrawer
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,23 +36,25 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     onRequestLocationPermission: () -> Unit,
     onLocationBoxClick: () -> Unit,
+    onEventClick: (String) -> Unit,
     drawerItemClicked: (String) -> Unit,
-    isPermissionGranted: Boolean
+    isPermissionGranted: Boolean,
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val userState = UserState.userState.collectAsState().value
     val isDrawerOpen = remember { MutableStateFlow(false) }
+    val trendingEvents by   viewModel.trendingEvents.collectAsState()
+    val favoriteEvents by viewModel.favoriteEvents.collectAsState()
+    val locationName by viewModel.locationName.collectAsState()
 
-    // Location Name dynamically based on UserState preferredCity
-    val locationName = userState?.preferredCity ?: "Fetching Location..."
-
-    // React to permission changes
     LaunchedEffect(isPermissionGranted) {
-        if (isPermissionGranted && userState?.preferredCity.isNullOrBlank()) {
+        if (isPermissionGranted && locationName.isBlank()) {
             val locationProvider = LocationProvider(context)
             val location = locationProvider.getCurrentLocation()
-            UserState.updateUser(userState!!.copy(preferredCity = location?.city ?: "Location not found"))
+            location?.city?.let { viewModel.fetchTrendingEvents(it) }
+                ?: onRequestLocationPermission()
         } else if (!isPermissionGranted) {
             onRequestLocationPermission()
         }
@@ -64,7 +70,7 @@ fun HomeScreen(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Hello ${userState?.displayName?.split(" ")?.firstOrNull() ?: "User"}!",
+                    text = "Hello ${UserState.userState.value?.displayName?.split(" ")?.firstOrNull() ?: "User"}!",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
@@ -89,7 +95,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = locationName,
+                            text = locationName.ifBlank { "Fetching Location..." },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onBackground
                         )
@@ -116,10 +122,27 @@ fun HomeScreen(
                     .padding(paddingValues)
             ) {
                 Text(
-                    text = "Welcome to the Home Screen!",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(16.dp)
+                    text = "Trending events near you:",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyRow(
+                    modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(trendingEvents.size) { index ->
+                        val event = trendingEvents[index]
+                        EventCard(
+                            event = event,
+                            isFavorite = favoriteEvents.contains(event.id),
+                            onFavoriteClick = { eventId -> viewModel.toggleFavorite(eventId) },
+                            onEventClick = { eventId -> onEventClick(eventId) },
+                            modifier = Modifier.fillParentMaxWidth(0.93f)
+                        )
+                    }
+                }
             }
         }
     )
