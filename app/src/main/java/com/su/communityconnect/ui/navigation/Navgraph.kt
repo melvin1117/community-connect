@@ -1,12 +1,16 @@
 package com.su.communityconnect.ui.navigation
 
+import android.Manifest
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,6 +53,18 @@ fun NavGraph(
 ) {
     val context = LocalContext.current
     val userState = UserState.userState.collectAsState().value
+    val locationPermissionGranted = remember { mutableStateOf(false) } // Shared state for permission
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            locationPermissionGranted.value = granted
+            if (!granted) {
+                Toast.makeText(context, "Location permission is required.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
 
     // Initialize user state
     LaunchedEffect(Unit) {
@@ -85,7 +101,7 @@ fun NavGraph(
     val currentRoute = navController.currentBackStackEntryAsState()?.value?.destination?.route
 
     // Check if BottomNavBar should be shown
-    val showBottomNav = currentRoute in listOf(HOME_SCREEN, CATEGORY_SCREEN, FAVOURITE_SCREEN, SEARCH_EVENT_SCREEN, EVENT_SCREEN)
+    val showBottomNav = currentRoute in listOf(HOME_SCREEN, FAVOURITE_SCREEN, SEARCH_EVENT_SCREEN, EVENT_SCREEN)
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -114,7 +130,7 @@ fun NavGraph(
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
         ) {
             composable(SPLASH_SCREEN) {
                 SplashScreen(onNavigateToSignIn = { navController.navigate(SIGN_IN_SCREEN) })
@@ -145,15 +161,27 @@ fun NavGraph(
 
             composable(HOME_SCREEN) {
                 HomeScreen(
-                    selectedCategories = userState?.preferredCategories ?: emptyList(),
-                    onLogout = {
-                        navController.navigate(SIGN_IN_SCREEN) {
-                            popUpTo(HOME_SCREEN) { inclusive = true }
+                    onRequestLocationPermission = {
+                        locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                    },
+                    drawerItemClicked = { selectedPage ->
+                        when (selectedPage) {
+                            "USER_PROFILE_SCREEN" -> navController.navigate(USER_PROFILE_SCREEN)
+                            "CATEGORY_SCREEN" -> navController.navigate(CATEGORY_SCREEN)
+                            "MY_BOOKINGS_SCREEN" -> navController.navigate(FAVOURITE_SCREEN)
+                            "MY_EVENT_SCREEN" -> {
+                                // Logic for "My Events" screen
+                            }
+                            "LOGOUT" -> {
+                                navController.navigate(SIGN_IN_SCREEN) {
+                                    popUpTo(HOME_SCREEN) { inclusive = true }
+                                }
+                            }
                         }
-                    }
+                    },
+                    isPermissionGranted = locationPermissionGranted.value // Pass the state
                 )
             }
-
             composable(EVENT_SCREEN) {
                 EventFormScreen(
                     onBackClick = { navController.popBackStack() },

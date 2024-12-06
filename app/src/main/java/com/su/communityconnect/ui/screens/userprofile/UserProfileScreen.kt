@@ -23,6 +23,7 @@ import com.su.communityconnect.ui.components.*
 import com.su.communityconnect.R
 import kotlinx.datetime.LocalDate
 import network.chaintech.kmp_date_time_picker.utils.now
+import java.time.format.DateTimeParseException
 
 @Composable
 fun UserProfileScreen(
@@ -91,8 +92,22 @@ fun UserProfileScreen(
                     DatePickerField(
                         label = stringResource(R.string.label_date_of_birth),
                         placeholder = stringResource(R.string.placeholder_date_of_birth),
-                        startDate = user.dateOfBirth?.let { LocalDate.parse(it) } ?: LocalDate.now(),
-                        prevSelectedDate = user.dateOfBirth?.let { LocalDate.parse(it) } ?: null,
+                        startDate = if (!user.dateOfBirth.isNullOrBlank()) {
+                            try {
+                                LocalDate.parse(user.dateOfBirth)
+                            } catch (e: DateTimeParseException) {
+                                LocalDate.now() // Default to current date if parsing fails
+                            }
+                        } else {
+                            LocalDate.now() // Default to current date if dateOfBirth is null or blank
+                        },
+                        prevSelectedDate = user.dateOfBirth?.takeIf { it.isNotBlank() }?.let {
+                            try {
+                                LocalDate.parse(it)
+                            } catch (e: DateTimeParseException) {
+                                null // Return null if parsing fails
+                            }
+                        },
                         onDateSelected = { date ->
                             if (date >= LocalDate.now()) {
                                 dobErrorMessage = context.getString(R.string.error_dob_future)
@@ -163,7 +178,7 @@ fun UserProfileScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         OutlinedButton(onClick = { onBackClick() }) {
-                            Text(stringResource(R.string.button_cancel))
+                            Text(stringResource(R.string.button_cancel), color = MaterialTheme.colorScheme.onSurface)
                         }
 
                         PrimaryButton(

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
@@ -22,16 +23,31 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.su.communityconnect.R
+import com.su.communityconnect.model.state.UserState
+import com.su.communityconnect.ui.components.ProfilePicture
+import kotlinx.coroutines.launch
+
+data class NavItem(
+    val key: String, // Unique key for the navigation item
+    val title: String, // Display title
+    val icon: ImageVector // Associated icon
+)
 
 @Composable
-fun SideNavigationDrawer() {
+fun SideNavigationDrawer(
+    itemClicked: (String) -> Unit
+) {
+    val userState = UserState.userState.collectAsState().value
+
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -43,17 +59,16 @@ fun SideNavigationDrawer() {
             modifier = Modifier.padding(bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_user), // Replace with actual image URL
-                contentDescription = "Profile Image",
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .background(color = MaterialTheme.colorScheme.surface)
+            ProfilePicture(
+                imageUrl = userState?.profilePictureUrl,
+                displayName = userState?.displayName,
+                onImageSelected = {}, // Handle image selection if needed
+                size = 64,
+                profileClicked = {}
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Amy Santiago",
+                text = userState?.displayName ?: "User",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold
                 ),
@@ -68,21 +83,24 @@ fun SideNavigationDrawer() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Navigation Items
         val navItems = listOf(
-            "Profile" to Icons.Default.Person,
-            "My Tickets" to Icons.Default.Event,
-            "My Bookings" to Icons.Default.CalendarToday,
-            //"Notifications" to Icons.Default.Notifications,
+            NavItem("USER_PROFILE_SCREEN", "Profile", Icons.Default.Person),
+            NavItem("CATEGORY_SCREEN", "Category Preference", Icons.Default.Category),
+            NavItem("MY_BOOKINGS_SCREEN", "My Booking", Icons.Default.Event),
+            NavItem("MY_EVENT_SCREEN", "My Events", Icons.Default.CalendarToday)
+            // Add more items as needed
         )
 
-        navItems.forEach { (label, icon) ->
+
+        navItems.forEach { (key, label, icon) ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .clickable { /* Handle click */ }
+                    .clickable {
+                        itemClicked(key)
+                    }
             ) {
                 Icon(
                     imageVector = icon,
@@ -108,7 +126,7 @@ fun SideNavigationDrawer() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* Handle logout */ }
+                .clickable { itemClicked("LOGOUT") }
         ) {
             Icon(
                 imageVector = Icons.Default.ExitToApp,

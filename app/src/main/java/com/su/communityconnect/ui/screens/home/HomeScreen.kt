@@ -7,191 +7,159 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.su.communityconnect.CREATE_EVENT_SCREEN
-import com.su.communityconnect.FAVOURITE_SCREEN
-import com.su.communityconnect.HOME_SCREEN
-import com.su.communityconnect.R
-import com.su.communityconnect.SEARCH_EVENT_SCREEN
-import com.su.communityconnect.ui.components.BottomNavBar
-import com.su.communityconnect.ui.components.EventCard
-import com.su.communityconnect.ui.components.MiniCardComponent
-import com.su.communityconnect.ui.components.PrimaryButton
+import com.su.communityconnect.model.provider.LocationProvider
+import com.su.communityconnect.model.state.UserState
+import com.su.communityconnect.ui.components.ProfilePicture
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
-    selectedCategories: List<String>,
-    onLogout: () -> Unit
+    onRequestLocationPermission: () -> Unit,
+    drawerItemClicked: (String) -> Unit,
+    isPermissionGranted: Boolean, // Receive the permission state
 ) {
-    val isFavorite = remember { mutableStateOf(false) }
-    var favoriteEvent by remember { mutableStateOf("") }
-    var isDrawerOpen = remember { MutableStateFlow(false) }
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val locationName = remember { mutableStateOf("Fetching Location...") }
+    val userState = UserState.userState.collectAsState().value
+    val isDrawerOpen = remember { MutableStateFlow(false) }
+
+    // React to permission changes
+    LaunchedEffect(isPermissionGranted) {
+        if (isPermissionGranted) {
+            val locationProvider = LocationProvider(context)
+            val location = locationProvider.getCurrentLocation()
+            locationName.value = location?.city ?: "Location not found"
+        } else {
+            onRequestLocationPermission()
+        }
+    }
 
     Scaffold(
+        containerColor = Color.Transparent,
+        topBar = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Greet User
+                Text(
+                    text = "Hello ${userState?.displayName?.split(" ")?.firstOrNull() ?: "User"}!",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Location Box
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.background,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Outlined.LocationOn,
+                            contentDescription = "Location",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = locationName.value,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Profile Picture
+                ProfilePicture(
+                    imageUrl = userState?.profilePictureUrl,
+                    displayName = userState?.displayName,
+                    onImageSelected = {}, // Handle image selection if needed
+                    size = 40,
+                    profileClicked = {
+                        coroutineScope.launch {
+                            isDrawerOpen.value = true
+                        }
+                    }
+                )
+            }
+        },
         content = { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface)
                     .padding(paddingValues)
-                    .padding(16.dp)
             ) {
-                // Top Row with Profile Image
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_user), // Replace with actual image
-                        contentDescription = "Profile Image",
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(MaterialTheme.shapes.medium)
-                            .clickable {
-                                coroutineScope.launch {
-                                    isDrawerOpen.value = true // Open the drawer
-                                }
-                            }
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Welcome to the Home Screen!",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.background,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(16.dp)
                 )
-
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Categories:",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.background,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                selectedCategories.forEach { category ->
-                    Text(
-                        text = category,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(4.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                PrimaryButton(
-                    text = stringResource(id = R.string.logout),
-                    onClick = { viewModel.logout(onLogout) }
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                MiniCardComponent(
-                    imageRes = R.drawable.default_event, // Replace with your drawable resource
-                    dateText = "Nov 01",
-                    timeText = "07:30 PM",
-                    title = "Maggie Rogers Music Jam",
-                    location = "Clinton Square, Syracuse",
-                    isFavorite = isFavorite.value,
-                    onFavoriteClick = { isFavorite.value = !isFavorite.value }
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-                LazyRow(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(16.dp)
-                ) {
-                    items(sampleEvents.size) { index ->
-                        val event = sampleEvents[index]
-                        EventCard(
-                            imageRes = event.imageRes,
-                            badgeText = event.badgeText,
-                            title = event.title,
-                            date = event.date,
-                            time = event.time,
-                            location = event.location,
-                            status = event.status,
-                            isFavorite = favoriteEvent == event.title,
-                            onFavoriteClick = {
-                                favoriteEvent = if (favoriteEvent == event.title) "" else event.title
-                            }
-                        )
-                    }
-                }
             }
         }
     )
 
-    // Custom Drawer Content
-    if (isDrawerOpen.collectAsState().value) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.7f) // Limit drawer height to half of the screen
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            SideNavigationDrawer() // Use your existing navigation drawer component here
-        }
+    // Drawer Content
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (isDrawerOpen.collectAsState().value) {
+            Row {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .fillMaxHeight()
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+                    SideNavigationDrawer(
+                        itemClicked = { selectedPage ->
+                            coroutineScope.launch {
+                                isDrawerOpen.value = false // Close the drawer
+                                drawerItemClicked(selectedPage) // Trigger navigation
+                            }
+                        }
+                    )
+                }
 
-        // Close Drawer Overlay
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable {
-                    coroutineScope.launch {
-                        isDrawerOpen.value = false // Close the drawer
-                    }
-                } // Close drawer when clicking outside
-                .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
-        )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            coroutineScope.launch {
+                                isDrawerOpen.value = false // Close the drawer
+                            }
+                        }
+                        .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
+                )
+            }
+        }
     }
 }
-
-
-data class Event(
-    val imageRes: Int,
-    val badgeText: String,
-    val title: String,
-    val date: String,
-    val time: String,
-    val location: String,
-    val status: String
-)
-
-val sampleEvents = listOf(
-    Event(
-        imageRes = R.drawable.default_event,
-        badgeText = "Top",
-        title = "Astronomy on Tap | Nov 17, 2024",
-        date = "Nov 17, 2024",
-        time = "06:30 - 08:30 PM",
-        location = "Recess, Syracuse",
-        status = "Free"
-    ),
-    Event(
-        imageRes = R.drawable.default_event,
-        badgeText = "Featured",
-        title = "Music Night | Nov 25, 2024",
-        date = "Nov 25, 2024",
-        time = "07:00 - 10:00 PM",
-        location = "Downtown Arena",
-        status = "Paid"
-    )
-)
