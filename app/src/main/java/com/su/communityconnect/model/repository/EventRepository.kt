@@ -118,4 +118,18 @@ class EventRepository(
         }.sortedBy { it.eventTimestamp } // Sort by date
     }
 
+    suspend fun getUpcomingEvents(location: String, preferredCategories: List<String>): List<Event> {
+        val snapshot = eventsRef.get().await()
+        val events = snapshot.children.mapNotNull { it.getValue(EventDTO::class.java)?.toEvent() }
+
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+        // Filter events based on location, categories, and upcoming status
+        return events.filter { event ->
+            event.location.city.equals(location, ignoreCase = true) && // Match city
+                    event.category in preferredCategories && // Match preferred categories
+                    event.eventTimestamp >= now // Upcoming events only
+        }.sortedBy { it.eventTimestamp } // Sort by date
+    }
+
 }

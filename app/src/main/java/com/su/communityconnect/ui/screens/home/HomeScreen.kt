@@ -3,7 +3,9 @@ package com.su.communityconnect.ui.screens.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationOn
@@ -27,10 +29,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.su.communityconnect.model.provider.LocationProvider
 import com.su.communityconnect.model.state.UserState
 import com.su.communityconnect.ui.components.EventCard
+import com.su.communityconnect.ui.components.EventMiniCard
 import com.su.communityconnect.ui.components.ProfilePicture
 import com.su.communityconnect.ui.components.SideNavigationDrawer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+
 
 @Composable
 fun HomeScreen(
@@ -45,9 +53,10 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     val userState = UserState.userState.collectAsState().value
     val isDrawerOpen = remember { MutableStateFlow(false) }
-    val trendingEvents by   viewModel.trendingEvents.collectAsState()
+    val trendingEvents by viewModel.trendingEvents.collectAsState()
     val favoriteEvents by viewModel.favoriteEvents.collectAsState()
     val locationName by viewModel.locationName.collectAsState()
+    val upcomingEvents by viewModel.upcomingEvents.collectAsState()
 
     LaunchedEffect(isPermissionGranted) {
         if (isPermissionGranted && locationName.isBlank()) {
@@ -70,9 +79,9 @@ fun HomeScreen(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Hello ${UserState.userState.value?.displayName?.split(" ")?.firstOrNull() ?: "User"}!",
+                    text = "Hello ${userState?.displayName?.split(" ")?.firstOrNull() ?: "User"}!",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f)
                 )
@@ -116,31 +125,88 @@ fun HomeScreen(
             }
         },
         content = { paddingValues ->
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+                    .padding(paddingValues),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "Trending events near you:",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                // Trending Events Section
+                item {
+                    Text(
+                        text = "Trending events near you:",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                    )
+                }
+                item {
+                    LazyRow(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(trendingEvents) { event ->
+                            EventCard(
+                                event = event,
+                                isFavorite = favoriteEvents.contains(event.id),
+                                onFavoriteClick = { eventId -> viewModel.toggleFavorite(eventId) },
+                                onEventClick = { eventId -> onEventClick(eventId) },
+                                modifier = Modifier.fillParentMaxWidth(0.93f)
+                            )
+                        }
+                    }
+                }
 
-                LazyRow(
-                    modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(trendingEvents.size) { index ->
-                        val event = trendingEvents[index]
-                        EventCard(
-                            event = event,
-                            isFavorite = favoriteEvents.contains(event.id),
-                            onFavoriteClick = { eventId -> viewModel.toggleFavorite(eventId) },
-                            onEventClick = { eventId -> onEventClick(eventId) },
-                            modifier = Modifier.fillParentMaxWidth(0.93f)
+                // Categories Section
+                item {
+                    Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Categories:",
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            items(userState?.preferredCategories.orEmpty()) { category ->
+                                Box(
+                                    modifier = Modifier
+                                        .background(
+                                            color = MaterialTheme.colorScheme.background,
+                                            shape = RoundedCornerShape(16.dp)
+                                        )
+                                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                                ) {
+                                    Text(
+                                        text = category.replaceFirstChar { it.uppercase() },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                items(upcomingEvents.chunked(2)) { rowEvents ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        rowEvents.forEach { event ->
+                            EventMiniCard(
+                                event = event,
+                                isFavorite = favoriteEvents.contains(event.id),
+                                onFavoriteClick = { eventId -> viewModel.toggleFavorite(eventId) },
+                                onEventClick = { eventId -> onEventClick(eventId) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        // Add spacer if there is an odd number of events
+                        if (rowEvents.size == 1) Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             }

@@ -23,6 +23,9 @@ class HomeViewModel @Inject constructor(
     private val _trendingEvents = MutableStateFlow<List<Event>>(emptyList())
     val trendingEvents: StateFlow<List<Event>> = _trendingEvents
 
+    private val _upcomingEvents = MutableStateFlow<List<Event>>(emptyList())
+    val upcomingEvents: StateFlow<List<Event>> = _upcomingEvents
+
     private val _favoriteEvents = MutableStateFlow<Set<String>>(emptySet())
     val favoriteEvents: StateFlow<Set<String>> = _favoriteEvents
 
@@ -39,6 +42,19 @@ class HomeViewModel @Inject constructor(
                 val trending = eventService.getTrendingEvents(location)
                 _trendingEvents.value = trending.take(3)
                 _locationName.value = location // Persist location for UI
+                fetchUpcomingEvents(location) // Fetch upcoming events when location changes
+            } catch (e: Exception) {
+                // Handle error, if needed
+            }
+        }
+    }
+
+    private fun fetchUpcomingEvents(location: String) {
+        viewModelScope.launch {
+            try {
+                val userCategories = UserState.userState.value?.preferredCategories.orEmpty()
+                val upcoming = eventService.getUpcomingEvents(location, userCategories)
+                _upcomingEvents.value = upcoming
             } catch (e: Exception) {
                 // Handle error, if needed
             }
@@ -68,13 +84,9 @@ class HomeViewModel @Inject constructor(
                 }
                 userService.updateWishlist(user.id, updatedWishlist.toList())
                 _favoriteEvents.value = updatedWishlist
-                // Keep the trending events intact, just update the favorites
             } catch (e: Exception) {
                 // Handle error, if needed
             }
         }
     }
 }
-
-
-

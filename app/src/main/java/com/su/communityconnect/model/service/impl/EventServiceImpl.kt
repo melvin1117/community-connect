@@ -42,4 +42,8 @@ class EventServiceImpl @Inject constructor(
     override suspend fun getTrendingEvents(location: String): List<Event> {
         return eventRepository.getTrendingEvents(location)
     }
+
+    override suspend fun getUpcomingEvents(location: String, preferredUserCategories: List<String>): List<Event> {
+        return eventRepository.getUpcomingEvents(location, preferredUserCategories)
+    }
 }
