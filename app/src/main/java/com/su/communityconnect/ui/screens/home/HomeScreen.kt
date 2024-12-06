@@ -1,12 +1,8 @@
 package com.su.communityconnect.ui.screens.home
 
-import SideNavigationDrawer
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationOn
@@ -17,8 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -30,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.su.communityconnect.model.provider.LocationProvider
 import com.su.communityconnect.model.state.UserState
 import com.su.communityconnect.ui.components.ProfilePicture
+import com.su.communityconnect.ui.components.SideNavigationDrawer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 

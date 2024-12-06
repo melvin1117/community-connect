@@ -1,4 +1,5 @@
-import androidx.compose.foundation.Image
+package com.su.communityconnect.ui.components
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -10,14 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Event
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.EventAvailable
+import androidx.compose.material.icons.outlined.LocalActivity
+import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,15 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.su.communityconnect.R
 import com.su.communityconnect.model.state.UserState
 import com.su.communityconnect.ui.components.ProfilePicture
-import kotlinx.coroutines.launch
 
 data class NavItem(
     val key: String, // Unique key for the navigation item
@@ -52,21 +48,21 @@ fun SideNavigationDrawer(
         modifier = Modifier
             .fillMaxHeight()
             .background(MaterialTheme.colorScheme.surface)
-            .padding(16.dp)
+            .padding(20.dp)
     ) {
         // User Profile Section
         Row(
-            modifier = Modifier.padding(bottom = 16.dp),
+            modifier = Modifier.padding(bottom = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProfilePicture(
                 imageUrl = userState?.profilePictureUrl,
                 displayName = userState?.displayName,
-                onImageSelected = {}, // Handle image selection if needed
+                onImageSelected = {},
                 size = 64,
                 profileClicked = {}
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = userState?.displayName ?: "User",
                 style = MaterialTheme.typography.headlineSmall.copy(
@@ -84,10 +80,10 @@ fun SideNavigationDrawer(
         Spacer(modifier = Modifier.height(8.dp))
 
         val navItems = listOf(
-            NavItem("USER_PROFILE_SCREEN", "Profile", Icons.Default.Person),
-            NavItem("CATEGORY_SCREEN", "Category Preference", Icons.Default.Category),
-            NavItem("MY_BOOKINGS_SCREEN", "My Booking", Icons.Default.Event),
-            NavItem("MY_EVENT_SCREEN", "My Events", Icons.Default.CalendarToday)
+            NavItem("USER_PROFILE_SCREEN", "Profile", Icons.Outlined.Person),
+            NavItem("CATEGORY_SCREEN", "Category Preference", Icons.Outlined.Category),
+            NavItem("MY_BOOKINGS_SCREEN", "My Booking", Icons.Outlined.LocalActivity),
+            NavItem("MY_EVENT_SCREEN", "My Events", Icons.Outlined.EventAvailable)
             // Add more items as needed
         )
 
@@ -97,7 +93,7 @@ fun SideNavigationDrawer(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 16.dp)
                     .clickable {
                         itemClicked(key)
                     }
@@ -129,7 +125,7 @@ fun SideNavigationDrawer(
                 .clickable { itemClicked("LOGOUT") }
         ) {
             Icon(
-                imageVector = Icons.Default.ExitToApp,
+                imageVector = Icons.Outlined.Logout,
                 contentDescription = "Logout",
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(28.dp)
