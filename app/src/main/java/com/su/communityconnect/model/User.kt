@@ -13,4 +13,5 @@ data class User(
     val gender: String = "",
     val preferredCategories: List<String> = emptyList(),
     val wishlist: List<String> = emptyList(),
+    val preferredCity: String = "",
 ) : Serializable

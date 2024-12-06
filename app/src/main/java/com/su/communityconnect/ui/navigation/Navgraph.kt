@@ -30,6 +30,7 @@ import com.su.communityconnect.SPLASH_SCREEN
 import com.su.communityconnect.FAVOURITE_SCREEN
 import com.su.communityconnect.SEARCH_EVENT_SCREEN
 import com.su.communityconnect.CREATE_EVENT_SCREEN
+import com.su.communityconnect.LOCATION_SELECTION_SCREEN
 import com.su.communityconnect.USER_PROFILE_SCREEN
 import com.su.communityconnect.model.User
 import com.su.communityconnect.model.service.AccountService
@@ -44,6 +45,7 @@ import com.su.communityconnect.ui.screens.home.HomeScreen
 import com.su.communityconnect.ui.screens.userprofile.UserProfileScreen
 import com.su.communityconnect.model.state.UserState
 import com.su.communityconnect.ui.components.BottomNavBar
+import com.su.communityconnect.ui.screens.LocationSelectionScreen
 
 @Composable
 fun NavGraph(
@@ -101,7 +103,7 @@ fun NavGraph(
     val currentRoute = navController.currentBackStackEntryAsState()?.value?.destination?.route
 
     // Check if BottomNavBar should be shown
-    val showBottomNav = currentRoute in listOf(HOME_SCREEN, FAVOURITE_SCREEN, SEARCH_EVENT_SCREEN, EVENT_SCREEN)
+    val showBottomNav = currentRoute in listOf(HOME_SCREEN, LOCATION_SELECTION_SCREEN, FAVOURITE_SCREEN, SEARCH_EVENT_SCREEN, EVENT_SCREEN)
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -164,6 +166,9 @@ fun NavGraph(
                     onRequestLocationPermission = {
                         locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                     },
+                    onLocationBoxClick = {
+                        navController.navigate(LOCATION_SELECTION_SCREEN)
+                    },
                     drawerItemClicked = { selectedPage ->
                         when (selectedPage) {
                             "USER_PROFILE_SCREEN" -> navController.navigate(USER_PROFILE_SCREEN)
@@ -182,6 +187,21 @@ fun NavGraph(
                     isPermissionGranted = locationPermissionGranted.value // Pass the state
                 )
             }
+
+            composable(LOCATION_SELECTION_SCREEN) {
+                LocationSelectionScreen(
+                    onLocationSelected = { city ->
+                        navController.popBackStack()
+                        // Update HomeScreen with the selected city
+                        UserState.updateUser(UserState.userState.value!!.copy(preferredCity = city))
+                    },
+                    onRequestCurrentLocation = {
+                        navController.popBackStack()
+                        UserState.updateUser(UserState.userState.value!!.copy(preferredCity = ""))
+                    }
+                )
+            }
+
             composable(EVENT_SCREEN) {
                 EventFormScreen(
                     onBackClick = { navController.popBackStack() },

@@ -36,22 +36,25 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     onRequestLocationPermission: () -> Unit,
+    onLocationBoxClick: () -> Unit,
     drawerItemClicked: (String) -> Unit,
-    isPermissionGranted: Boolean, // Receive the permission state
+    isPermissionGranted: Boolean
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val locationName = remember { mutableStateOf("Fetching Location...") }
     val userState = UserState.userState.collectAsState().value
     val isDrawerOpen = remember { MutableStateFlow(false) }
 
+    // Location Name dynamically based on UserState preferredCity
+    val locationName = userState?.preferredCity ?: "Fetching Location..."
+
     // React to permission changes
     LaunchedEffect(isPermissionGranted) {
-        if (isPermissionGranted) {
+        if (isPermissionGranted && userState?.preferredCity.isNullOrBlank()) {
             val locationProvider = LocationProvider(context)
             val location = locationProvider.getCurrentLocation()
-            locationName.value = location?.city ?: "Location not found"
-        } else {
+            UserState.updateUser(userState!!.copy(preferredCity = location?.city ?: "Location not found"))
+        } else if (!isPermissionGranted) {
             onRequestLocationPermission()
         }
     }
@@ -65,7 +68,6 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                // Greet User
                 Text(
                     text = "Hello ${userState?.displayName?.split(" ")?.firstOrNull() ?: "User"}!",
                     style = MaterialTheme.typography.titleMedium,
@@ -82,6 +84,7 @@ fun HomeScreen(
                             shape = RoundedCornerShape(16.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .clickable { onLocationBoxClick() }
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -91,7 +94,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = locationName.value,
+                            text = locationName,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onBackground
                         )
@@ -100,16 +103,13 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Profile Picture
                 ProfilePicture(
                     imageUrl = userState?.profilePictureUrl,
                     displayName = userState?.displayName,
                     onImageSelected = {}, // Handle image selection if needed
                     size = 40,
                     profileClicked = {
-                        coroutineScope.launch {
-                            isDrawerOpen.value = true
-                        }
+                        coroutineScope.launch { isDrawerOpen.value = true }
                     }
                 )
             }
