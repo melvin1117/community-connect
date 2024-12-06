@@ -46,6 +46,9 @@ import com.su.communityconnect.ui.screens.userprofile.UserProfileScreen
 import com.su.communityconnect.model.state.UserState
 import com.su.communityconnect.ui.components.BottomNavBar
 import com.su.communityconnect.ui.screens.LocationSelectionScreen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun NavGraph(
@@ -178,8 +181,20 @@ fun NavGraph(
                                 // Logic for "My Events" screen
                             }
                             "LOGOUT" -> {
-                                navController.navigate(SIGN_IN_SCREEN) {
-                                    popUpTo(HOME_SCREEN) { inclusive = true }
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    try {
+                                        accountService.signOut()
+                                        UserState.clear()
+                                        navController.navigate(SIGN_IN_SCREEN) {
+                                            popUpTo(HOME_SCREEN) { inclusive = true }
+                                        }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            context,
+                                            "Error during logout: ${e.localizedMessage}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                             }
                         }
