@@ -51,7 +51,7 @@ fun BottomNavBar(
                                 imageVector = item.icon,
                                 modifier = Modifier.size(30.dp),
                                 contentDescription = item.label,
-                                tint = if (selectedItem == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                tint = if (selectedItem == index) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.background
                             )
                             if (selectedItem == index) {
                                 // Add the line below the selected icon
@@ -60,7 +60,7 @@ fun BottomNavBar(
                                     modifier = Modifier
                                         .fillMaxWidth(0.2f) // Adjust line width
                                         .height(2.dp)
-                                        .background(MaterialTheme.colorScheme.primary)
+                                        .background(MaterialTheme.colorScheme.secondary)
                                         .align(androidx.compose.ui.Alignment.BottomCenter)
                                 )
                             }

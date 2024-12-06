@@ -2,12 +2,23 @@ package com.su.communityconnect.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,33 +29,31 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun EventCard(
+fun MiniCardComponent(
     imageRes: Int,
-    badgeText: String,
+    dateText: String,
+    timeText: String,
     title: String,
-    date: String,
-    time: String,
     location: String,
-    status: String,
     isFavorite: Boolean,
-    onFavoriteClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onFavoriteClick: () -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
-            .width(250.dp)
-            .fillMaxWidth()
+            .width(180.dp)
             .padding(8.dp),
-    ) {
+
+        ) {
         Column(
-            modifier = Modifier.background(MaterialTheme.colorScheme.background)
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
         ) {
             // Image Section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(95.dp)
+                    .height(120.dp)
             ) {
                 Image(
                     painter = painterResource(id = imageRes),
@@ -53,7 +62,7 @@ fun EventCard(
                     contentScale = ContentScale.Crop
                 )
 
-                // Badge for Top or Featured
+                // Date Badge
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -64,10 +73,10 @@ fun EventCard(
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = badgeText,
+                        text = dateText,
                         style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     )
                 }
@@ -80,12 +89,12 @@ fun EventCard(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
-                        .size(24.dp)
+                        .size(12.dp)
                         .clickable { onFavoriteClick() }
                 )
             }
 
-            // Content Section
+            // Text Content Section
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,32 +107,20 @@ fun EventCard(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     ),
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Event Date, Time, and Location
+                // Location and Time
                 Text(
-                    text = "$date | $time, $location",
+                    text = "$location\n$timeText",
                     style = MaterialTheme.typography.bodySmall.copy(
                         color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
                     ),
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Event Status (Free or Paid)
-                Text(
-                    text = status,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = if (status == "Free") MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.error
-                    )
                 )
             }
         }
