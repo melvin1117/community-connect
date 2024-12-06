@@ -40,33 +40,14 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     selectedCategories: List<String>,
-    onLogout: () -> Unit,
-    onNavigateToOtherScreen: (String) -> Unit
+    onLogout: () -> Unit
 ) {
-
     val isFavorite = remember { mutableStateOf(false) }
     var favoriteEvent by remember { mutableStateOf("") }
     var isDrawerOpen = remember { MutableStateFlow(false) }
     val coroutineScope = rememberCoroutineScope()
-    var selectedNavItem by remember { mutableStateOf(0) }
 
-    Box(modifier = Modifier.fillMaxSize())
     Scaffold(
-        bottomBar = {
-            BottomNavBar(
-                selectedItem = selectedNavItem,
-                onItemSelected = { index ->
-                    selectedNavItem = index
-                    when (index) {
-                        0 -> onNavigateToOtherScreen(HOME_SCREEN) // Navigate to Home
-                        1 -> onNavigateToOtherScreen(SEARCH_EVENT_SCREEN) // Navigate to Search event
-                        2 -> onNavigateToOtherScreen(FAVOURITE_SCREEN) // Navigate to Favourite Screen
-                        3 -> onNavigateToOtherScreen(CREATE_EVENT_SCREEN) // Navigate to create Screen
-                    }
-                }
-            )
-
-        },
         content = { paddingValues ->
             Column(
                 modifier = Modifier
@@ -107,8 +88,7 @@ fun HomeScreen(
                     text = "Categories:",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.background,
-
-                    )
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 selectedCategories.forEach { category ->
                     Text(
@@ -155,15 +135,9 @@ fun HomeScreen(
                             }
                         )
                     }
-
                 }
-
-
-
             }
-
         }
-
     )
 
     // Custom Drawer Content
@@ -188,7 +162,6 @@ fun HomeScreen(
                 .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
         )
     }
-
 }
 
 

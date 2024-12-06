@@ -2,18 +2,21 @@ package com.su.communityconnect.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.su.communityconnect.ui.theme.DarkOnSurfaceSecondaryText
+import com.su.communityconnect.ui.theme.NavBorderColor
 
 @Composable
 fun BottomNavBar(
@@ -21,53 +24,43 @@ fun BottomNavBar(
     onItemSelected: (Int) -> Unit
 ) {
     val items = listOf(
-        BottomNavItem("Home", Icons.Filled.Home),
-        BottomNavItem("Search", Icons.Filled.Search),
-        BottomNavItem("Favorites", Icons.Outlined.Favorite),
-        BottomNavItem("Add", Icons.Outlined.Add)
+        BottomNavItem("Home", Icons.Outlined.Home),
+        BottomNavItem("Search", Icons.Outlined.Search),
+        BottomNavItem("Favorites", Icons.Outlined.FavoriteBorder),
+        BottomNavItem("Add", Icons.Outlined.AddCircleOutline)
     )
-    Box(
 
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.onBackground) // Background of the nav bar
-
+            .background(MaterialTheme.colorScheme.surface)
     ) {
+        // Top border (divider)
         HorizontalDivider(
-            color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.7f)
+            color = NavBorderColor,
+            thickness = 0.7.dp
         )
+
+        // Bottom navigation bar
         NavigationBar(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSecondary
-        )
-        {
+        ) {
             items.forEachIndexed { index, item ->
                 NavigationBarItem(
                     selected = selectedItem == index,
                     onClick = { onItemSelected(index) },
-                    icon = {
-                        Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
-                            Icon(
-                                imageVector = item.icon,
-                                modifier = Modifier.size(30.dp),
-                                contentDescription = item.label,
-                                tint = if (selectedItem == index) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.background
-                            )
-                            if (selectedItem == index) {
-                                // Add the line below the selected icon
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.2f) // Adjust line width
-                                        .height(2.dp)
-                                        .background(MaterialTheme.colorScheme.secondary)
-                                        .align(androidx.compose.ui.Alignment.BottomCenter)
-                                )
-                            }
-                        }
-                    },
-                    label = null,
-                    alwaysShowLabel = false
+                    label = { Text(item.label, fontWeight = FontWeight.SemiBold, fontSize = 14.sp) },
+                    icon = { Icon(imageVector = item.icon, contentDescription = null) },
+                    colors = NavigationBarItemColors (
+                        selectedIconColor = MaterialTheme.colorScheme.secondary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                        selectedTextColor = MaterialTheme.colorScheme.secondary,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledIconColor = DarkOnSurfaceSecondaryText,
+                        disabledTextColor = DarkOnSurfaceSecondaryText,
+                        selectedIndicatorColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
+                    )
                 )
             }
         }

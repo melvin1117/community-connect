@@ -13,3 +13,5 @@ val DarkError = Color(0xFFCF6679)
 val DarkOnPrimary = Color(0xFFFFFFFF)
 val DarkOnBackground = Color(0xFF090D20)
 val DarkOnSurface = Color(0xFFFFFFFF)
+
+val NavBorderColor = Color(0xFF5A5A5A)

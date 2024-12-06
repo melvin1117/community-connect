@@ -97,9 +97,6 @@
     <string name="error_invalid_booking_end_date">Invalid booking end</string>
     <string name="error_invalid_capacity">Invalid capacity</string>
     <string name="error_invalid_price">Invalid price</string>
-
-
-    <!-- Labels and Placeholders -->
     <string name="label_code">Code</string>
     <string name="placeholder_code">Enter code</string>
     <string name="label_discount">Discount (%)</string>
@@ -109,15 +106,36 @@
     <string name="upload_icon_description">Attach File</string>
     <string name="uploaded_image_description">Uploaded Image</string>
     <string name="dropdown_select_option">Select an option</string>
-
-    <!-- Buttons -->
     <string name="add_promo_code">Add Promo Code</string>
     <string name="remove_promo_code">Remove Promo Code</string>
-
-    <!-- Error Messages -->
     <string name="error_complete_existing_promo_code">Complete existing promo codes before adding a new one.</string>
     <string name="error_promo_code_unique">Promo codes must be unique.</string>
     <string name="error_invalid_discount">Discount must be between 0% and 100%.</string>
-
     <string name="click_select">Click to select</string>
+    <!-- Labels and Placeholders -->
+    <string name="label_full_name">Full Name</string>
+    <string name="placeholder_full_name">Enter your name</string>
+    <string name="label_email">Email</string>
+    <string name="placeholder_email">Your email address</string>
+    <string name="label_date_of_birth">Date of Birth</string>
+    <string name="placeholder_date_of_birth">Select your date of birth</string>
+    <string name="label_phone_number">Phone Number</string>
+    <string name="placeholder_phone_number">Enter your phone number</string>
+    <string name="label_gender">Gender</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_other">Other</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_save_changes">Save Changes</string>
+    <string name="error_name_contains_numbers">Name cannot contain numbers.</string>
+    <string name="error_invalid_phone">Invalid phone number format.</string>
+    <string name="error_dob_future">Date of Birth must be in the past.</string>
+    <string name="error_name_empty">Name cannot be empty.</string>
+    <string name="error_profile_picture_required">Profile picture is required.</string>
+    <string name="profile_saved_successfully">Profile saved successfully!</string>
+    <string name="select_categories_prompt">Select up to 4 categories:</string>
+    <string name="error_max_categories">You can select up to 4 categories only.</string>
+    <string name="error_min_categories">You must select at least one category.</string>
+    <string name="button_done">Done</string>
+    <string name="preferences_saved">Preferences saved!</string>
 </resources>

@@ -1,7 +1,6 @@
 package com.su.communityconnect.ui.screens.category
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -9,15 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.su.communityconnect.R
 import com.su.communityconnect.ui.components.BackButton
 import com.su.communityconnect.ui.components.CategoryCard
@@ -43,14 +40,14 @@ fun CategoryScreen(
                 CategoryViewModel.CategoryUiEvent.MaxLimitReached -> {
                     Toast.makeText(
                         context,
-                        "You can select up to 4 categories only.",
+                        context.getString(R.string.error_max_categories),
                         Toast.LENGTH_LONG
                     ).show()
                 }
                 CategoryViewModel.CategoryUiEvent.MinLimitNotReached -> {
                     Toast.makeText(
                         context,
-                        "You must select at least one category.",
+                        context.getString(R.string.error_min_categories),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -87,7 +84,7 @@ fun CategoryScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "Select up to 4 categories:",
+                    text = stringResource(R.string.select_categories_prompt),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -123,12 +120,16 @@ fun CategoryScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 PrimaryButton(
-                    text = "Done",
+                    text = stringResource(R.string.button_done),
                     horizontalPadding = 50.dp,
                     onClick = {
                         viewModel.savePreferredCategories(
                             onSuccess = {
-                                Toast.makeText(context, "Preferences saved!", Toast.LENGTH_LONG).show()
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.preferences_saved),
+                                    Toast.LENGTH_LONG
+                                ).show()
                                 onBackClick()
                             },
                             onError = { error ->
