@@ -114,6 +114,5 @@ dependencies {
 
     implementation(libs.play.services.maps)
     implementation(libs.android.maps.utils)
-    implementation(libs.gson)
     implementation(libs.maps.compose)
 }
