@@ -30,6 +30,7 @@ import com.su.communityconnect.ui.components.BackButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+
 @Composable
 fun TicketScreen(
     ticketId: String,
@@ -67,6 +68,33 @@ fun TicketScreen(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
             ) {
+                // Floating Circles for Ticket Shape
+                // Floating Circles for Ticket Shape
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(240.dp) // Match the height of the image card
+                        .zIndex(10f), // Ensure circles are above all elements
+                    contentAlignment = Alignment.BottomCenter // Align circles at the bottom
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surface)
+                            .absoluteOffset(x = (-25).dp, y = 0.dp) // Position for left circle
+                            .align(Alignment.BottomStart)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surface)
+                            .absoluteOffset(x =25.dp, y = 0.dp) // Position for right circle
+                            .align(Alignment.BottomEnd)
+                    )
+                }
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -76,7 +104,7 @@ fun TicketScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp) // Image Card Padding
+                            .padding(horizontal = 16.dp)
                             .clip(
                                 RoundedCornerShape(
                                     topStart = 24.dp,
@@ -130,34 +158,10 @@ fun TicketScreen(
                         }
                     }
 
-                    // Semi-Circles for Ticket Shape
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(0.dp) // Spacer for overlap
-                            .zIndex(2f), // Ensure circles are above cards
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.secondary)
-                                .offset(x = (-20).dp, y = 0.dp)
-                        )
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.secondary)
-                                .offset(x = 20.dp, y = 0.dp)
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp) // QR Card Padding
+                            .padding(horizontal = 16.dp)
                             .clip(
                                 RoundedCornerShape(
                                     topStart = 0.dp,
@@ -170,7 +174,7 @@ fun TicketScreen(
                                 Brush.horizontalGradient(
                                     colors = listOf(
                                         MaterialTheme.colorScheme.primary,
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                                     )
                                 )
                             )
@@ -271,6 +275,7 @@ fun TicketScreen(
         }
     }
 }
+
 
 // QR Code Generator
 suspend fun generateQRCode(content: String): Bitmap = withContext(Dispatchers.Default) {
