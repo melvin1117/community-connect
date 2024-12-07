@@ -26,34 +26,35 @@ import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
 import java.time.format.DateTimeFormatter
 import com.su.communityconnect.R
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @Composable
-fun EventCard(
+fun EventMiniCard(
     event: Event,
     isFavorite: Boolean,
     onFavoriteClick: (String) -> Unit,
     onEventClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd")
     val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
 
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = modifier
-            .fillMaxWidth() // Full width provided by the parent
-            .height(250.dp) // Fixed height for the card
+            .fillMaxWidth() // Full width of the parent
+            .height(180.dp) // Fixed height for the mini card
             .clickable { onEventClick(event.id) },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background
         )
     ) {
         Column {
-            // Event Image Section (70% of card height)
+            // Event Image Section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(7f) // 70% of the height
+                    .height(120.dp) // 2/3 of the card height for the image
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(
@@ -66,21 +67,30 @@ fun EventCard(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // Top Left Label
+                // Date and Time Box
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
+                        .padding(start = 12.dp)
                         .background(
-                            MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(bottomEnd = 8.dp)
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(bottomEnd = 8.dp, bottomStart = 8.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    Text(
-                        text = event.category.replaceFirstChar { it.uppercase() }, // Convert to Title Case
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = event.eventTimestamp.date.toJavaLocalDate().format(dateFormatter),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = event.eventTimestamp.time.toJavaLocalTime().format(timeFormatter),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                 }
 
                 // Wishlist Button
@@ -102,52 +112,31 @@ fun EventCard(
                 }
             }
 
-            // Event Details Section (30% of card height)
+            // Event Details Section
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(3f) // 30% of the height
-                    .padding(vertical = 12.dp, horizontal = 16.dp)
+                    .padding(vertical = 8.dp, horizontal = 12.dp)
             ) {
-                // Title and Date Row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "${event.title} | ${event.eventTimestamp.date.toJavaLocalDate().format(dateFormatter)}",
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                // Event Title
+                Text(
+                    text = event.title,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold
+                )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Time, Location, and Price Row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "${event.eventTimestamp.time.toJavaLocalTime().format(timeFormatter)} at ${event.location.displayName}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-                    Text(
-                        text = if (event.price > 0) "$${event.price}" else "Free",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (event.price > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                    )
-                }
+                // Location
+                Text(
+                    text = event.location.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             }
         }
     }
 }
-

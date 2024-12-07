@@ -10,6 +10,7 @@ import com.google.firebase.auth.userProfileChangeRequest
 import com.su.communityconnect.model.User
 import com.su.communityconnect.model.service.AccountService
 import com.su.communityconnect.model.service.UserService
+import com.su.communityconnect.model.state.UserState
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -71,19 +72,23 @@ class AccountServiceImpl @Inject constructor(
         // Fetch user data from the database
         val dbUser = userService.getUser(firebaseUser.uid)
 
-        val userToSave = if (dbUser != null) {
-            // Merge existing database user data with Firebase user data
-            firebaseUser.toCommunityConnectUser(dbUser)
+        if (dbUser == null) {
+            val userToSave = firebaseUser.toCommunityConnectUser()
+            userService.saveUser(userToSave)
+            UserState.updateUser(userToSave)
         } else {
-            // First-time login, create a new user object
-            firebaseUser.toCommunityConnectUser()
+            UserState.updateUser(dbUser)
         }
 
-        userService.saveUser(userToSave)
     }
 
     override suspend fun signInWithEmail(email: String, password: String) {
         Firebase.auth.signInWithEmailAndPassword(email, password).await()
+        val dbUser = userService.getUser(currentUserId)
+
+        if (dbUser != null) {
+            UserState.updateUser(dbUser)
+        }
     }
 
     override suspend fun signOut() {
@@ -116,32 +121,5 @@ class AccountServiceImpl @Inject constructor(
             profilePictureUrl = this.photoUrl?.toString() ?: "",
             phone = this.phoneNumber ?: ""
         )
-    }
-
-    private fun FirebaseUser.toCommunityConnectUser(dbUser: User? = null): User {
-        return dbUser?.copy(
-            email = this.email ?: dbUser.email,
-            provider = this.providerData.firstOrNull()?.providerId ?: dbUser.provider,
-            displayName = this.displayName ?: dbUser.displayName,
-            profilePictureUrl = this.photoUrl?.toString() ?: dbUser.profilePictureUrl,
-            phone = this.phoneNumber ?: dbUser.phone,
-            dateOfBirth = dbUser.dateOfBirth, // Retain existing value
-            gender = dbUser.gender, // Retain existing value
-            preferredCategories = dbUser.preferredCategories, // Retain existing value
-            wishlist = dbUser.wishlist // Retain existing value
-        )
-            ?:
-            User(
-                id = this.uid,
-                email = this.email.orEmpty(),
-                provider = this.providerData.firstOrNull()?.providerId.orEmpty(),
-                displayName = this.displayName.orEmpty(),
-                profilePictureUrl = this.photoUrl?.toString().orEmpty(),
-                phone = this.phoneNumber.orEmpty(),
-                dateOfBirth = "", // Default value
-                gender = "", // Default value
-                preferredCategories = emptyList(), // Default value
-                wishlist = emptyList() // Default value
-            )
     }
 }

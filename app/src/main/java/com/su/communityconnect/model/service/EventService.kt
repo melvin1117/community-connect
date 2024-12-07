@@ -9,4 +9,6 @@ interface EventService {
     suspend fun deleteEvent(eventId: String)
     suspend fun uploadImages(userId: String, eventId: String, imageUris: List<String>): List<String>
     fun generateEventId(): String
+    suspend fun getTrendingEvents(location: String): List<Event>
+    suspend fun getUpcomingEvents(location: String, preferredUserCategories: List<String>): List<Event>
 }

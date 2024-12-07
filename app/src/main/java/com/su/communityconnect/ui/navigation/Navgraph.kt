@@ -30,6 +30,7 @@ import com.su.communityconnect.SPLASH_SCREEN
 import com.su.communityconnect.FAVOURITE_SCREEN
 import com.su.communityconnect.SEARCH_EVENT_SCREEN
 import com.su.communityconnect.CREATE_EVENT_SCREEN
+import com.su.communityconnect.EVENT_DETAIL
 import com.su.communityconnect.LOCATION_SELECTION_SCREEN
 import com.su.communityconnect.USER_PROFILE_SCREEN
 import com.su.communityconnect.model.User
@@ -115,17 +116,15 @@ fun NavGraph(
                 BottomNavBar(
                     selectedItem = when (currentRoute) {
                         HOME_SCREEN -> 0
-                        SEARCH_EVENT_SCREEN -> 1
+                        EVENT_SCREEN -> 1
                         FAVOURITE_SCREEN -> 2
-                        EVENT_SCREEN -> 3
                         else -> 0
                     },
                     onItemSelected = { index ->
                         when (index) {
                             0 -> navController.navigate(HOME_SCREEN) { launchSingleTop = true }
-                            1 -> navController.navigate(SEARCH_EVENT_SCREEN) { launchSingleTop = true }
+                            1 -> navController.navigate(EVENT_SCREEN) { launchSingleTop = true }
                             2 -> navController.navigate(FAVOURITE_SCREEN) { launchSingleTop = true }
-                            3 -> navController.navigate(EVENT_SCREEN) { launchSingleTop = true }
                         }
                     }
                 )
@@ -199,6 +198,7 @@ fun NavGraph(
                             }
                         }
                     },
+                    onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL/$eventId") },
                     isPermissionGranted = locationPermissionGranted.value // Pass the state
                 )
             }

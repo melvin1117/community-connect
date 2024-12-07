@@ -50,3 +50,4 @@ object UserState {
         userId = null
     }
 }
+

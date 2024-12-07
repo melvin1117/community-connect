@@ -7,8 +7,14 @@ import com.su.communityconnect.model.EventDTO
 import com.su.communityconnect.model.TicketLifecycle
 import com.su.communityconnect.model.TicketLifecycleDTO
 import kotlinx.coroutines.tasks.await
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
+import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 
 class EventRepository(
     private val database: FirebaseDatabase,
@@ -91,4 +97,39 @@ class EventRepository(
             promoCode = promoCode
         )
     }
+
+    suspend fun getTrendingEvents(location: String): List<Event> {
+        val snapshot = eventsRef.get().await()
+        val events = snapshot.children.mapNotNull { it.getValue(EventDTO::class.java)?.toEvent() }
+
+        // Get the current time
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+        // Manually calculate 3 days from now
+        val threeDaysLater = now.date.plus(DatePeriod(days = 3)).atTime(now.time)
+
+        // Filter trending events based on location, booking status, and date proximity
+        return events.filter { event ->
+            event.location.city.equals(location, ignoreCase = true) && // Match city name
+                    event.ticketLifecycle.liveFrom <= now &&
+                    event.ticketLifecycle.endsOn >= now &&
+                    event.eventTimestamp >= now &&
+                    event.eventTimestamp <= threeDaysLater
+        }.sortedBy { it.eventTimestamp } // Sort by date
+    }
+
+    suspend fun getUpcomingEvents(location: String, preferredCategories: List<String>): List<Event> {
+        val snapshot = eventsRef.get().await()
+        val events = snapshot.children.mapNotNull { it.getValue(EventDTO::class.java)?.toEvent() }
+
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+        // Filter events based on location, categories, and upcoming status
+        return events.filter { event ->
+            event.location.city.equals(location, ignoreCase = true) && // Match city
+                    event.category in preferredCategories && // Match preferred categories
+                    event.eventTimestamp >= now // Upcoming events only
+        }.sortedBy { it.eventTimestamp } // Sort by date
+    }
+
 }
