@@ -132,4 +132,15 @@ class EventRepository(
         }.sortedBy { it.eventTimestamp } // Sort by date
     }
 
+    suspend fun updateTicketsBookedCount(eventId: String, quantity: Int) {
+        try {
+            val snapshot = eventsRef.child(eventId).child("ticketsBooked").get().await()
+            val currentCount = snapshot.getValue(Int::class.java) ?: 0
+            val updatedCount = currentCount + quantity
+            eventsRef.child(eventId).child("ticketsBooked").setValue(updatedCount).await()
+        } catch (e: Exception) {
+            throw Exception("Failed to update tickets booked count: ${e.localizedMessage}")
+        }
+    }
+
 }

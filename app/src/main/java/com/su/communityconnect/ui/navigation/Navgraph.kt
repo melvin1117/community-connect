@@ -29,7 +29,7 @@ import com.su.communityconnect.SPLASH_SCREEN
 import com.su.communityconnect.FAVOURITE_SCREEN
 import com.su.communityconnect.SEARCH_EVENT_SCREEN
 import com.su.communityconnect.EVENT_DETAIL_SCREEN
-import com.su.communityconnect.EVENT_PAYMENT_SCREEN
+import com.su.communityconnect.EVENT_TICKET_BOOKING_SCREEN
 import com.su.communityconnect.LOCATION_SELECTION_SCREEN
 import com.su.communityconnect.USER_PROFILE_SCREEN
 import com.su.communityconnect.model.service.AccountService
@@ -46,6 +46,7 @@ import com.su.communityconnect.model.state.UserState
 import com.su.communityconnect.ui.components.BottomNavBar
 import com.su.communityconnect.ui.screens.LocationSelectionScreen
 import com.su.communityconnect.ui.screens.eventdetail.EventDetailScreen
+import com.su.communityconnect.ui.screens.ticketbooking.TicketBookingScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -112,7 +113,8 @@ fun NavGraph(
         EVENT_DETAIL_SCREEN,
         FAVOURITE_SCREEN,
         SEARCH_EVENT_SCREEN,
-        EVENT_SCREEN
+        EVENT_SCREEN,
+        EVENT_TICKET_BOOKING_SCREEN
     ).any { currentRoute?.contains(it) == true }
 
     Scaffold(
@@ -272,12 +274,20 @@ fun NavGraph(
                     onMapClick = {
                         // Handle map opening logic here
                     },
-                    onAttendClick = { eventId -> navController.navigate("$EVENT_PAYMENT_SCREEN/$eventId") },
+                    onAttendClick = { eventId -> navController.navigate("$EVENT_TICKET_BOOKING_SCREEN/$eventId") },
                 )
             }
 
-            composable("$EVENT_PAYMENT_SCREEN/{eventId}") { backStackEntry ->
+            composable("$EVENT_TICKET_BOOKING_SCREEN/{eventId}") { backStackEntry ->
                 val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+                TicketBookingScreen(
+                    eventId = eventId,
+                    userId = accountService.currentUserId,
+                    onBackClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") },
+                    onPaymentSuccess = {
+                        // Handle map opening logic here
+                    },
+                )
 
             }
         }
