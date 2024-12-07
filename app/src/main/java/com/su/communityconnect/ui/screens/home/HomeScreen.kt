@@ -160,15 +160,15 @@ fun HomeScreen(
 
                 // Categories Section
                 item {
+                    Spacer(modifier = Modifier.height(4.dp))
                     Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "Categories:",
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.padding(top = 8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(userState?.preferredCategories.orEmpty()) { category ->
                                 Box(
@@ -188,6 +188,7 @@ fun HomeScreen(
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
                 items(upcomingEvents.chunked(2)) { rowEvents ->
                     Row(
