@@ -1,5 +1,6 @@
 package com.su.communityconnect.ui.screens.eventdetail
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.gson.Gson
 import com.su.communityconnect.ui.components.BackButton
 import com.su.communityconnect.ui.components.ImageCarousel
 import com.su.communityconnect.ui.components.OrganizerDetails
@@ -33,6 +35,8 @@ import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
 import java.time.format.DateTimeFormatter
 import com.su.communityconnect.R
+import com.su.communityconnect.model.EventLocation
+import com.su.communityconnect.model.state.EventLocationState
 
 @Composable
 fun EventDetailScreen(
@@ -186,7 +190,10 @@ fun EventDetailScreen(
                                 contentAlignment = Alignment.CenterEnd
                             ) {
                                 IconButton(
-                                    onClick = onMapClick
+                                    onClick = {
+                                        EventLocationState.setEventLocation(eventData.location)
+                                        onMapClick()
+                                    }
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.Map,

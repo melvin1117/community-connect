@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -31,7 +32,9 @@ android {
                 localPropertiesFile.inputStream().use { load(it) }
             }
         }
-        buildConfigField("String", "PLACES_API_KEY", "\"${localProperties["PLACES_API_KEY"]}\"")
+        val placesApiKey = localProperties["PLACES_API_KEY"] ?: ""
+        buildConfigField("String", "PLACES_API_KEY", "\"$placesApiKey\"")
+        manifestPlaceholders["placesApiKey"] = placesApiKey
     }
     buildFeatures {
         compose = true
@@ -109,4 +112,8 @@ dependencies {
 
     implementation(libs.core)
 
+    implementation(libs.play.services.maps)
+    implementation(libs.android.maps.utils)
+    implementation(libs.gson)
+    implementation(libs.maps.compose)
 }

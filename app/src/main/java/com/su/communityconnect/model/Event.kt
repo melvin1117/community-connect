@@ -2,6 +2,8 @@ package com.su.communityconnect.model
 
 import kotlinx.datetime.LocalDateTime
 import network.chaintech.kmp_date_time_picker.utils.now
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 data class Event(
     val id: String = "",
@@ -22,6 +24,7 @@ data class Event(
     val ticketsBooked: Int = 0,
 )
 
+@Parcelize
 data class EventLocation(
     val id: String = "",
     val city: String = "",
@@ -30,7 +33,7 @@ data class EventLocation(
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
     val displayName: String = "",
-)
+) : Parcelable
 
 data class TicketLifecycle(
     val liveFrom: LocalDateTime = LocalDateTime.now(),

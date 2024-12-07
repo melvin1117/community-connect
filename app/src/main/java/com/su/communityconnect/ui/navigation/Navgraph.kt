@@ -15,10 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.su.communityconnect.CATEGORY_SCREEN
 import com.su.communityconnect.EVENT_SCREEN
 import com.su.communityconnect.FORGOT_PASSWORD_SCREEN
@@ -32,7 +34,9 @@ import com.su.communityconnect.EVENT_DETAIL_SCREEN
 import com.su.communityconnect.EVENT_TICKET_BOOKING_SCREEN
 import com.su.communityconnect.EVENT_TICKET_SCREEN
 import com.su.communityconnect.LOCATION_SELECTION_SCREEN
+import com.su.communityconnect.MAP_SCREEN
 import com.su.communityconnect.USER_PROFILE_SCREEN
+import com.su.communityconnect.model.EventLocation
 import com.su.communityconnect.model.service.AccountService
 import com.su.communityconnect.model.service.UserService
 import com.su.communityconnect.ui.screens.SplashScreen
@@ -46,6 +50,7 @@ import com.su.communityconnect.ui.screens.userprofile.UserProfileScreen
 import com.su.communityconnect.model.state.UserState
 import com.su.communityconnect.ui.components.BottomNavBar
 import com.su.communityconnect.ui.screens.LocationSelectionScreen
+import com.su.communityconnect.ui.screens.MapScreen
 import com.su.communityconnect.ui.screens.eventdetail.EventDetailScreen
 import com.su.communityconnect.ui.screens.ticket.TicketScreen
 import com.su.communityconnect.ui.screens.ticketbooking.TicketBookingScreen
@@ -274,9 +279,7 @@ fun NavGraph(
                 EventDetailScreen(
                     eventId = eventId,
                     onBackClick = { navController.navigate(HOME_SCREEN) },
-                    onMapClick = {
-                        // Handle map opening logic here
-                    },
+                    onMapClick = { navController.navigate("$MAP_SCREEN/$eventId") },
                     onAttendClick = { eventId -> navController.navigate("$EVENT_TICKET_BOOKING_SCREEN/$eventId") },
                 )
             }
@@ -298,8 +301,14 @@ fun NavGraph(
                     ticketId = ticketId,
                     onBackClick = { navController.navigate(HOME_SCREEN) }
                 )
-
             }
+
+            composable("$MAP_SCREEN/{eventId}") { backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+                MapScreen(onBackClick = { navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") })
+            }
+
+
         }
     }
 }
