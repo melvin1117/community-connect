@@ -38,6 +38,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.ui.res.stringResource
+import com.su.communityconnect.R
 
 
 @Composable
@@ -79,7 +81,10 @@ fun HomeScreen(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Hello ${userState?.displayName?.split(" ")?.firstOrNull() ?: "User"}!",
+                    text = stringResource(
+                        R.string.greeting_message,
+                        userState?.displayName?.split(" ")?.firstOrNull() ?: stringResource(R.string.default_user_name)
+                    ),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -99,12 +104,12 @@ fun HomeScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Outlined.LocationOn,
-                            contentDescription = "Location",
+                            contentDescription = stringResource(R.string.icon_location_description),
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = locationName.ifBlank { "Fetching Location..." },
+                            text = locationName.ifBlank { stringResource(R.string.fetching_location) },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onBackground
                         )
@@ -134,7 +139,7 @@ fun HomeScreen(
                 // Trending Events Section
                 item {
                     Text(
-                        text = "Trending events near you:",
+                        text = stringResource(R.string.trending_events_title),
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                     )
@@ -161,9 +166,12 @@ fun HomeScreen(
                 // Categories Section
                 item {
                     Spacer(modifier = Modifier.height(4.dp))
-                    Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = "Categories:",
+                            text = stringResource(R.string.categories_title),
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                         )
                         Spacer(modifier = Modifier.width(12.dp))

@@ -9,7 +9,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -29,11 +28,10 @@ import com.su.communityconnect.SIGN_UP_SCREEN
 import com.su.communityconnect.SPLASH_SCREEN
 import com.su.communityconnect.FAVOURITE_SCREEN
 import com.su.communityconnect.SEARCH_EVENT_SCREEN
-import com.su.communityconnect.CREATE_EVENT_SCREEN
-import com.su.communityconnect.EVENT_DETAIL
+import com.su.communityconnect.EVENT_DETAIL_SCREEN
+import com.su.communityconnect.EVENT_PAYMENT_SCREEN
 import com.su.communityconnect.LOCATION_SELECTION_SCREEN
 import com.su.communityconnect.USER_PROFILE_SCREEN
-import com.su.communityconnect.model.User
 import com.su.communityconnect.model.service.AccountService
 import com.su.communityconnect.model.service.UserService
 import com.su.communityconnect.ui.screens.SplashScreen
@@ -47,6 +45,7 @@ import com.su.communityconnect.ui.screens.userprofile.UserProfileScreen
 import com.su.communityconnect.model.state.UserState
 import com.su.communityconnect.ui.components.BottomNavBar
 import com.su.communityconnect.ui.screens.LocationSelectionScreen
+import com.su.communityconnect.ui.screens.eventdetail.EventDetailScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -107,7 +106,14 @@ fun NavGraph(
     val currentRoute = navController.currentBackStackEntryAsState()?.value?.destination?.route
 
     // Check if BottomNavBar should be shown
-    val showBottomNav = currentRoute in listOf(HOME_SCREEN, LOCATION_SELECTION_SCREEN, FAVOURITE_SCREEN, SEARCH_EVENT_SCREEN, EVENT_SCREEN)
+    val showBottomNav = listOf(
+        HOME_SCREEN,
+        LOCATION_SELECTION_SCREEN,
+        EVENT_DETAIL_SCREEN,
+        FAVOURITE_SCREEN,
+        SEARCH_EVENT_SCREEN,
+        EVENT_SCREEN
+    ).any { currentRoute?.contains(it) == true }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -198,7 +204,7 @@ fun NavGraph(
                             }
                         }
                     },
-                    onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL/$eventId") },
+                    onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") },
                     isPermissionGranted = locationPermissionGranted.value // Pass the state
                 )
             }
@@ -258,8 +264,21 @@ fun NavGraph(
                 // SearchScreen placeholder
             }
 
-            composable(CREATE_EVENT_SCREEN) {
-                // AddScreen placeholder
+            composable("$EVENT_DETAIL_SCREEN/{eventId}") { backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+                EventDetailScreen(
+                    eventId = eventId,
+                    onBackClick = { navController.navigate(HOME_SCREEN) },
+                    onMapClick = {
+                        // Handle map opening logic here
+                    },
+                    onAttendClick = { eventId -> navController.navigate("$EVENT_PAYMENT_SCREEN/$eventId") },
+                )
+            }
+
+            composable("$EVENT_PAYMENT_SCREEN/{eventId}") { backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+
             }
         }
     }
