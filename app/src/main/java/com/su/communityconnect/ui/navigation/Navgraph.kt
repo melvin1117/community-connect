@@ -222,13 +222,13 @@ fun NavGraph(
             composable(LOCATION_SELECTION_SCREEN) {
                 LocationSelectionScreen(
                     onLocationSelected = { city ->
-                        navController.popBackStack()
                         // Update HomeScreen with the selected city
                         UserState.updateUser(UserState.userState.value!!.copy(preferredCity = city))
+                        navController.navigate(HOME_SCREEN)
                     },
                     onRequestCurrentLocation = {
-                        navController.popBackStack()
                         UserState.updateUser(UserState.userState.value!!.copy(preferredCity = ""))
+                        navController.navigate(HOME_SCREEN)
                     }
                 )
             }
