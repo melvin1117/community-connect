@@ -143,7 +143,7 @@ class EventViewModel @Inject constructor(
         if (formState.title.isBlank()) return EventValidationError.TITLE_REQUIRED
         if (formState.description.isBlank()) return EventValidationError.DESCRIPTION_REQUIRED
         if (formState.totalCapacity <= 0) return EventValidationError.INVALID_CAPACITY
-        if (formState.costPerTicket <= 0.0) return EventValidationError.INVALID_PRICE
+        if (formState.costPerTicket < 0.0) return EventValidationError.INVALID_PRICE
 
         return null
     }
