@@ -61,15 +61,23 @@ fun HomeScreen(
     val upcomingEvents by viewModel.upcomingEvents.collectAsState()
 
     LaunchedEffect(isPermissionGranted) {
-        if (isPermissionGranted && locationName.isBlank()) {
-            val locationProvider = LocationProvider(context)
-            val location = locationProvider.getCurrentLocation()
-            location?.city?.let { viewModel.fetchTrendingEvents(it) }
-                ?: onRequestLocationPermission()
-        } else if (!isPermissionGranted) {
+        if (isPermissionGranted) {
+            val preferredCity = UserState.userState.value?.preferredCity
+            if (!preferredCity.isNullOrBlank()) {
+                // Fetch trending events for the preferred city
+                viewModel.fetchTrendingEvents(preferredCity)
+            } else if (locationName.isBlank()) {
+                // If no preferred city, fetch current location
+                val locationProvider = LocationProvider(context)
+                val location = locationProvider.getCurrentLocation()
+                location?.city?.let { viewModel.fetchTrendingEvents(it) }
+                    ?: onRequestLocationPermission()
+            }
+        } else {
             onRequestLocationPermission()
         }
     }
+
 
     Scaffold(
         containerColor = Color.Transparent,
