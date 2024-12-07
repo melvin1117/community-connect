@@ -9,7 +9,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -28,12 +27,14 @@ import com.su.communityconnect.SIGN_IN_SCREEN
 import com.su.communityconnect.SIGN_UP_SCREEN
 import com.su.communityconnect.SPLASH_SCREEN
 import com.su.communityconnect.FAVOURITE_SCREEN
-import com.su.communityconnect.SEARCH_EVENT_SCREEN
-import com.su.communityconnect.CREATE_EVENT_SCREEN
-import com.su.communityconnect.EVENT_DETAIL
+import com.su.communityconnect.EVENT_DETAIL_SCREEN
+import com.su.communityconnect.EVENT_TICKET_BOOKING_SCREEN
+import com.su.communityconnect.EVENT_TICKET_SCREEN
 import com.su.communityconnect.LOCATION_SELECTION_SCREEN
+import com.su.communityconnect.MAP_SCREEN
+import com.su.communityconnect.MY_TICKETS_SCREEN
+import com.su.communityconnect.MY_EVENTS_SCREEN
 import com.su.communityconnect.USER_PROFILE_SCREEN
-import com.su.communityconnect.model.User
 import com.su.communityconnect.model.service.AccountService
 import com.su.communityconnect.model.service.UserService
 import com.su.communityconnect.ui.screens.SplashScreen
@@ -47,6 +48,13 @@ import com.su.communityconnect.ui.screens.userprofile.UserProfileScreen
 import com.su.communityconnect.model.state.UserState
 import com.su.communityconnect.ui.components.BottomNavBar
 import com.su.communityconnect.ui.screens.LocationSelectionScreen
+import com.su.communityconnect.ui.screens.MapScreen
+import com.su.communityconnect.ui.screens.eventdetail.EventDetailScreen
+import com.su.communityconnect.ui.screens.mybookings.MyTicketsScreen
+import com.su.communityconnect.ui.screens.myevents.MyEventsScreen
+import com.su.communityconnect.ui.screens.ticket.TicketScreen
+import com.su.communityconnect.ui.screens.ticketbooking.TicketBookingScreen
+import com.su.communityconnect.ui.screens.wishlist.WishlistScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -107,7 +115,17 @@ fun NavGraph(
     val currentRoute = navController.currentBackStackEntryAsState()?.value?.destination?.route
 
     // Check if BottomNavBar should be shown
-    val showBottomNav = currentRoute in listOf(HOME_SCREEN, LOCATION_SELECTION_SCREEN, FAVOURITE_SCREEN, SEARCH_EVENT_SCREEN, EVENT_SCREEN)
+    val showBottomNav = listOf(
+        HOME_SCREEN,
+        LOCATION_SELECTION_SCREEN,
+        EVENT_DETAIL_SCREEN,
+        FAVOURITE_SCREEN,
+        EVENT_SCREEN,
+        EVENT_TICKET_BOOKING_SCREEN,
+        EVENT_TICKET_SCREEN,
+        MY_TICKETS_SCREEN,
+        MY_EVENTS_SCREEN,
+    ).any { currentRoute?.contains(it) == true }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -175,10 +193,8 @@ fun NavGraph(
                         when (selectedPage) {
                             "USER_PROFILE_SCREEN" -> navController.navigate(USER_PROFILE_SCREEN)
                             "CATEGORY_SCREEN" -> navController.navigate(CATEGORY_SCREEN)
-                            "MY_BOOKINGS_SCREEN" -> navController.navigate(FAVOURITE_SCREEN)
-                            "MY_EVENT_SCREEN" -> {
-                                // Logic for "My Events" screen
-                            }
+                            "MY_TICKETS_SCREEN" -> navController.navigate(MY_TICKETS_SCREEN)
+                            "MY_EVENT_SCREEN" -> navController.navigate(MY_EVENTS_SCREEN)
                             "LOGOUT" -> {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     try {
@@ -198,7 +214,7 @@ fun NavGraph(
                             }
                         }
                     },
-                    onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL/$eventId") },
+                    onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") },
                     isPermissionGranted = locationPermissionGranted.value // Pass the state
                 )
             }
@@ -206,13 +222,13 @@ fun NavGraph(
             composable(LOCATION_SELECTION_SCREEN) {
                 LocationSelectionScreen(
                     onLocationSelected = { city ->
-                        navController.popBackStack()
                         // Update HomeScreen with the selected city
                         UserState.updateUser(UserState.userState.value!!.copy(preferredCity = city))
+                        navController.navigate(HOME_SCREEN)
                     },
                     onRequestCurrentLocation = {
-                        navController.popBackStack()
                         UserState.updateUser(UserState.userState.value!!.copy(preferredCity = ""))
+                        navController.navigate(HOME_SCREEN)
                     }
                 )
             }
@@ -251,16 +267,53 @@ fun NavGraph(
             }
 
             composable(FAVOURITE_SCREEN) {
-                // FavoritesScreen placeholder
+                WishlistScreen(onBackClick = { navController.navigate(HOME_SCREEN) }, onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId")})
             }
 
-            composable(SEARCH_EVENT_SCREEN) {
-                // SearchScreen placeholder
+            composable(MY_TICKETS_SCREEN) {
+                MyTicketsScreen(onBackClick = { navController.navigate(HOME_SCREEN) }, onTicketClick = { ticketId -> navController.navigate("$EVENT_TICKET_SCREEN/$ticketId")})
             }
 
-            composable(CREATE_EVENT_SCREEN) {
-                // AddScreen placeholder
+            composable(MY_EVENTS_SCREEN) {
+                MyEventsScreen(onBackClick = { navController.navigate(HOME_SCREEN) }, onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId")})
             }
+
+            composable("$EVENT_DETAIL_SCREEN/{eventId}") { backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+                EventDetailScreen(
+                    eventId = eventId,
+                    onBackClick = { navController.navigate(HOME_SCREEN) },
+                    onMapClick = { navController.navigate("$MAP_SCREEN/$eventId") },
+                    onAttendClick = { eventId -> navController.navigate("$EVENT_TICKET_BOOKING_SCREEN/$eventId") },
+                )
+            }
+
+            composable("$EVENT_TICKET_BOOKING_SCREEN/{eventId}") { backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+                TicketBookingScreen(
+                    eventId = eventId,
+                    userId = accountService.currentUserId,
+                    onBackClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") },
+                    onPaymentSuccess = { ticketId -> navController.navigate("$EVENT_TICKET_SCREEN/$ticketId")},
+                )
+
+            }
+
+            composable("$EVENT_TICKET_SCREEN/{ticketId}") { backStackEntry ->
+                val ticketId = backStackEntry.arguments?.getString("ticketId") ?: return@composable
+                TicketScreen(
+                    ticketId = ticketId,
+                    onBackClick = { navController.navigate(HOME_SCREEN) },
+                    onMapClick = { eventId -> navController.navigate("$MAP_SCREEN/$eventId") },
+                )
+            }
+
+            composable("$MAP_SCREEN/{eventId}") { backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+                MapScreen(onBackClick = { navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") })
+            }
+
+
         }
     }
 }

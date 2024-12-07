@@ -82,7 +82,7 @@ fun SideNavigationDrawer(
         val navItems = listOf(
             NavItem("USER_PROFILE_SCREEN", "Profile", Icons.Outlined.Person),
             NavItem("CATEGORY_SCREEN", "Category Preference", Icons.Outlined.Category),
-            NavItem("MY_BOOKINGS_SCREEN", "My Booking", Icons.Outlined.LocalActivity),
+            NavItem("MY_TICKETS_SCREEN", "My Tickets", Icons.Outlined.LocalActivity),
             NavItem("MY_EVENT_SCREEN", "My Events", Icons.Outlined.EventAvailable)
             // Add more items as needed
         )

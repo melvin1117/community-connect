@@ -21,7 +21,7 @@ fun PrimaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalPadding: Dp = 12.dp,
+    horizontalPadding: Dp = 16.dp,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
     icon: Painter? = null,
     iconPosition: IconPosition = IconPosition.Left,
