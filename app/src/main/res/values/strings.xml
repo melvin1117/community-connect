@@ -68,7 +68,7 @@
     <string name="edit_event">Edit Event</string>
     <string name="save_changes">Save Changes</string>
     <string name="event_saved">Event saved successfully!</string>
-    <string name="submitting">Submitting...</string>
+    <string name="submitting">Submitting…</string>
     <string name="error">Error</string>
     <string name="label_event_title">Title</string>
     <string name="placeholder_event_title">e.g., Workshop</string>
@@ -138,4 +138,25 @@
     <string name="error_min_categories">You must select at least one category.</string>
     <string name="button_done">Done</string>
     <string name="preferences_saved">Preferences saved!</string>
+    <string name="greeting_message">Hello %1$s!</string>
+    <string name="default_user_name">User</string>
+    <string name="icon_location_description">Location</string>
+    <string name="fetching_location">Fetching Location…</string>
+    <string name="trending_events_title">Trending events near you:</string>
+    <string name="categories_title">Categories:</string>
+    <string name="error_event_details">Failed to load event details</string>
+    <string name="icon_share">Share Event</string>
+    <string name="icon_favorite">Wishlist Icon</string>
+    <string name="icon_map">Open Map</string>
+    <string name="label_event_by">Event By</string>
+    <string name="label_description">Description</string>
+    <string name="paid_event">This is a paid event.</string>
+    <string name="free_event">This is a free event.</string>
+    <string name="attend_button">Attend</string>
+    <string name="failed_org_detail">Failed to load organizer details</string>
+    <string name="read_more">Read more</string>
+    <string name="icon_wishlist">Wishlist Icon</string>
+    <string name="event_time_location">%1$s at %2$s</string>
+    <string name="event_paid">Paid</string>
+    <string name="event_free">Free</string>
 </resources>

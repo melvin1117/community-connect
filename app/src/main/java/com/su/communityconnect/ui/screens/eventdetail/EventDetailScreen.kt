@@ -1,19 +1,14 @@
 package com.su.communityconnect.ui.screens.eventdetail
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Map
@@ -22,26 +17,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import com.su.communityconnect.model.Event
-import com.su.communityconnect.model.User
 import com.su.communityconnect.ui.components.BackButton
 import com.su.communityconnect.ui.components.ImageCarousel
 import com.su.communityconnect.ui.components.OrganizerDetails
 import com.su.communityconnect.ui.components.PrimaryButton
-import com.su.communityconnect.ui.components.ProfilePicture
 import com.su.communityconnect.utils.openDialer
 import com.su.communityconnect.utils.openEmailClient
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
 import java.time.format.DateTimeFormatter
+import com.su.communityconnect.R
 
 @Composable
 fun EventDetailScreen(
@@ -69,7 +60,7 @@ fun EventDetailScreen(
         }
         is EventDetailState.Error -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "Failed to load event details", color = MaterialTheme.colorScheme.error)
+                Text(text = stringResource(R.string.error_event_details), color = MaterialTheme.colorScheme.error)
             }
         }
         is EventDetailState.Success -> {
@@ -127,7 +118,7 @@ fun EventDetailScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Share,
-                                    contentDescription = "Share Event",
+                                    contentDescription = stringResource(R.string.icon_share),
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -142,7 +133,7 @@ fun EventDetailScreen(
                             ) {
                                 Icon(
                                     imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Outlined.FavoriteBorder,
-                                    contentDescription = "Wishlist Icon",
+                                    contentDescription = stringResource(R.string.icon_favorite),
                                     tint = if (isFavorite) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -199,7 +190,7 @@ fun EventDetailScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.Map,
-                                        contentDescription = "Open Map",
+                                        contentDescription = stringResource(R.string.icon_map),
                                         modifier = Modifier.size(64.dp),
                                         tint = MaterialTheme.colorScheme.onSecondary
                                     )
@@ -208,11 +199,11 @@ fun EventDetailScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp)) // Reduced gap between card and "Event By"
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     // Organizer Details Label
                     Text(
-                        text = "Event By",
+                        text = stringResource(R.string.label_event_by),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 16.dp)
@@ -237,7 +228,7 @@ fun EventDetailScreen(
                         }
                         is OrganizerState.Error -> {
                             Text(
-                                text = "Failed to load organizer details",
+                                text = stringResource(id = R.string.failed_org_detail),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -249,7 +240,7 @@ fun EventDetailScreen(
 
                     // Description Label
                     Text(
-                        text = "Description",
+                        text = stringResource(R.string.label_description),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 16.dp)
@@ -266,7 +257,7 @@ fun EventDetailScreen(
                     )
                     if (!isDescriptionExpanded && eventData.description.length > 100) {
                         TextButton(onClick = { isDescriptionExpanded = true }, modifier = Modifier.padding(horizontal = 16.dp)) {
-                            Text(text = "Read more")
+                            Text(text = stringResource(id = R.string.read_more))
                         }
                     }
 
@@ -274,7 +265,7 @@ fun EventDetailScreen(
 
                     // Paid or Free
                     Text(
-                        text = if (eventData.price > 0) "This is a paid event." else "This is a free event.",
+                        text = if (eventData.price > 0) stringResource(R.string.paid_event) else stringResource(R.string.free_event),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 16.dp)
@@ -290,7 +281,7 @@ fun EventDetailScreen(
                     ) {
                         PrimaryButton(
                             horizontalPadding = 20.dp,
-                            text = "Attend",
+                            text = stringResource(id = R.string.attend_button),
                             onClick = { onAttendClick(eventData.id) }
                         )
                     }
@@ -299,4 +290,3 @@ fun EventDetailScreen(
         }
     }
 }
-

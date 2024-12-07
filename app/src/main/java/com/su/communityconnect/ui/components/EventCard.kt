@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -41,8 +42,8 @@ fun EventCard(
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = modifier
-            .fillMaxWidth() // Full width provided by the parent
-            .height(250.dp) // Fixed height for the card
+            .fillMaxWidth()
+            .height(250.dp)
             .clickable { onEventClick(event.id) },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background
@@ -53,7 +54,7 @@ fun EventCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(7f) // 70% of the height
+                    .weight(7f)
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(
@@ -77,7 +78,7 @@ fun EventCard(
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = event.category.replaceFirstChar { it.uppercase() }, // Convert to Title Case
+                        text = event.category.replaceFirstChar { it.uppercase() },
                         color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -96,7 +97,7 @@ fun EventCard(
                 ) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Wishlist Icon",
+                        contentDescription = stringResource(R.string.icon_wishlist),
                         tint = if (isFavorite) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -106,7 +107,7 @@ fun EventCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(3f) // 30% of the height
+                    .weight(3f)
                     .padding(vertical = 12.dp, horizontal = 16.dp)
             ) {
                 // Title and Date Row
@@ -134,13 +135,17 @@ fun EventCard(
                 ) {
                     Column {
                         Text(
-                            text = "${event.eventTimestamp.time.toJavaLocalTime().format(timeFormatter)} at ${event.location.displayName}",
+                            text = stringResource(
+                                R.string.event_time_location,
+                                event.eventTimestamp.time.toJavaLocalTime().format(timeFormatter),
+                                event.location.displayName
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onBackground
                         )
                     }
                     Text(
-                        text = if (event.price > 0) "$${event.price}" else "Free",
+                        text = if (event.price > 0) stringResource(R.string.event_paid) else stringResource(R.string.event_free),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = if (event.price > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
@@ -150,4 +155,3 @@ fun EventCard(
         }
     }
 }
-
