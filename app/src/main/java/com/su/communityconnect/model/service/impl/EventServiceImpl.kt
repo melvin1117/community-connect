@@ -46,4 +46,13 @@ class EventServiceImpl @Inject constructor(
     override suspend fun getUpcomingEvents(location: String, preferredUserCategories: List<String>): List<Event> {
         return eventRepository.getUpcomingEvents(location, preferredUserCategories)
     }
+
+    override suspend fun updateTicketsBookedCount(eventId: String, quantity: Int) {
+        eventRepository.updateTicketsBookedCount(eventId, quantity)
+    }
+
+    override suspend fun getEventsByOwnerId(userId: String): List<Event> {
+        return eventRepository.getEventsByOwnerId(userId)
+    }
+
 }
