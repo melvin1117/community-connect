@@ -303,7 +303,8 @@ fun NavGraph(
                 val ticketId = backStackEntry.arguments?.getString("ticketId") ?: return@composable
                 TicketScreen(
                     ticketId = ticketId,
-                    onBackClick = { navController.navigate(HOME_SCREEN) }
+                    onBackClick = { navController.navigate(HOME_SCREEN) },
+                    onMapClick = { eventId -> navController.navigate("$MAP_SCREEN/$eventId") },
                 )
             }
 

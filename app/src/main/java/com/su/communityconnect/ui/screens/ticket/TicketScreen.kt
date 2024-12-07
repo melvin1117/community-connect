@@ -28,7 +28,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
+import com.su.communityconnect.model.state.EventLocationState
 import com.su.communityconnect.ui.components.BackButton
+import com.su.communityconnect.ui.components.PrimaryButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -37,6 +39,7 @@ import kotlinx.coroutines.withContext
 fun TicketScreen(
     ticketId: String,
     onBackClick: () -> Unit,
+    onMapClick: (String) -> Unit,
     viewModel: TicketViewModel = hiltViewModel()
 ) {
     val ticketState by viewModel.ticketState.collectAsState()
@@ -285,6 +288,22 @@ fun TicketScreen(
                         Text(
                             text = event.guideline,
                             style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    // Get Directions Button
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        PrimaryButton(
+                            text = "Get Directions",
+                            onClick = {
+                                EventLocationState.setEventLocation(event.location)
+                                onMapClick(event.id)
+                            }
                         )
                     }
                 }
