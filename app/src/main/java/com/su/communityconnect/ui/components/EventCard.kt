@@ -59,7 +59,7 @@ fun EventCard(
                     painter = rememberAsyncImagePainter(
                         model = event.images.firstOrNull() ?: "",
                         error = painterResource(R.drawable.default_event),
-                        placeholder = painterResource(R.drawable.default_event)
+                        placeholder = painterResource(R.drawable.event_default_loading)
                     ),
                     contentDescription = event.title,
                     contentScale = ContentScale.Crop,
