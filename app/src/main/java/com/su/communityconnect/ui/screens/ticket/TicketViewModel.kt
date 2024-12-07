@@ -1,9 +1,12 @@
 package com.su.communityconnect.ui.screens.ticket
 
+import android.content.Context
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.su.communityconnect.model.Event
 import com.su.communityconnect.model.Ticket
+import com.su.communityconnect.model.provider.PDFProvider
 import com.su.communityconnect.model.service.EventService
 import com.su.communityconnect.model.service.TicketService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +24,9 @@ class TicketViewModel @Inject constructor(
     private val _ticketState = MutableStateFlow<TicketState>(TicketState.Loading)
     val ticketState: StateFlow<TicketState> = _ticketState
 
+    private val _pdfDownloadState = MutableStateFlow<String?>(null) // Null means no state change
+    val pdfDownloadState: StateFlow<String?> = _pdfDownloadState
+
     fun loadTicket(ticketId: String) {
         viewModelScope.launch {
             try {
@@ -34,8 +40,18 @@ class TicketViewModel @Inject constructor(
         }
     }
 
-    fun downloadTicketAsPDF(ticket: Ticket, event: Event) {
-        // Logic for generating a PDF and downloading the ticket goes here
+    fun downloadTicketAsPDF(context: Context, ticket: Ticket, event: Event, qrCodeBitmap: Bitmap?) {
+        viewModelScope.launch {
+            val result = PDFProvider.createTicketPdf(context, ticket, event, qrCodeBitmap)
+            _pdfDownloadState.value = result.fold(
+                onSuccess = { filePath -> "PDF saved at $filePath" },
+                onFailure = { error -> "Failed to download ticket: ${error.localizedMessage}" }
+            )
+        }
+    }
+
+    fun resetPdfDownloadState() {
+        _pdfDownloadState.value = null // Reset the state after showing the toast
     }
 }
 

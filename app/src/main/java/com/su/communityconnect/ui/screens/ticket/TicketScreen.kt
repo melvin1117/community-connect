@@ -2,6 +2,7 @@ package com.su.communityconnect.ui.screens.ticket
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -39,10 +41,21 @@ fun TicketScreen(
 ) {
     val ticketState by viewModel.ticketState.collectAsState()
     var qrCodeBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    val pdfDownloadState by viewModel.pdfDownloadState.collectAsState()
+    val context = LocalContext.current
+
 
     LaunchedEffect(ticketId) {
         viewModel.loadTicket(ticketId)
     }
+
+    LaunchedEffect(pdfDownloadState) {
+        pdfDownloadState?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            viewModel.resetPdfDownloadState()
+        }
+    }
+
 
     when (val state = ticketState) {
         is TicketState.Loading -> {
@@ -142,7 +155,11 @@ fun TicketScreen(
                         ) {
                             BackButton(onBackClick = onBackClick)
                             IconButton(
-                                onClick = { viewModel.downloadTicketAsPDF(ticket, event) },
+                                onClick = {
+                                    qrCodeBitmap?.let { bitmap ->
+                                        viewModel.downloadTicketAsPDF(context, ticket, event, bitmap)
+                                    }
+                                },
                                 modifier = Modifier
                                     .size(48.dp)
                                     .clip(CircleShape)
