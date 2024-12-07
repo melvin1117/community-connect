@@ -12,4 +12,5 @@ interface EventService {
     suspend fun getTrendingEvents(location: String): List<Event>
     suspend fun getUpcomingEvents(location: String, preferredUserCategories: List<String>): List<Event>
     suspend fun updateTicketsBookedCount(eventId: String, quantity: Int)
+    suspend fun getEventsByOwnerId(userId: String): List<Event>
 }

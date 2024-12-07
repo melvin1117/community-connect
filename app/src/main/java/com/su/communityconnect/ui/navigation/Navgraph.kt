@@ -15,12 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.su.communityconnect.CATEGORY_SCREEN
 import com.su.communityconnect.EVENT_SCREEN
 import com.su.communityconnect.FORGOT_PASSWORD_SCREEN
@@ -29,14 +27,14 @@ import com.su.communityconnect.SIGN_IN_SCREEN
 import com.su.communityconnect.SIGN_UP_SCREEN
 import com.su.communityconnect.SPLASH_SCREEN
 import com.su.communityconnect.FAVOURITE_SCREEN
-import com.su.communityconnect.SEARCH_EVENT_SCREEN
 import com.su.communityconnect.EVENT_DETAIL_SCREEN
 import com.su.communityconnect.EVENT_TICKET_BOOKING_SCREEN
 import com.su.communityconnect.EVENT_TICKET_SCREEN
 import com.su.communityconnect.LOCATION_SELECTION_SCREEN
 import com.su.communityconnect.MAP_SCREEN
+import com.su.communityconnect.MY_TICKETS_SCREEN
+import com.su.communityconnect.MY_EVENTS_SCREEN
 import com.su.communityconnect.USER_PROFILE_SCREEN
-import com.su.communityconnect.model.EventLocation
 import com.su.communityconnect.model.service.AccountService
 import com.su.communityconnect.model.service.UserService
 import com.su.communityconnect.ui.screens.SplashScreen
@@ -52,8 +50,11 @@ import com.su.communityconnect.ui.components.BottomNavBar
 import com.su.communityconnect.ui.screens.LocationSelectionScreen
 import com.su.communityconnect.ui.screens.MapScreen
 import com.su.communityconnect.ui.screens.eventdetail.EventDetailScreen
+import com.su.communityconnect.ui.screens.mybookings.MyTicketsScreen
+import com.su.communityconnect.ui.screens.myevents.MyEventsScreen
 import com.su.communityconnect.ui.screens.ticket.TicketScreen
 import com.su.communityconnect.ui.screens.ticketbooking.TicketBookingScreen
+import com.su.communityconnect.ui.screens.wishlist.WishlistScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -119,10 +120,11 @@ fun NavGraph(
         LOCATION_SELECTION_SCREEN,
         EVENT_DETAIL_SCREEN,
         FAVOURITE_SCREEN,
-        SEARCH_EVENT_SCREEN,
         EVENT_SCREEN,
         EVENT_TICKET_BOOKING_SCREEN,
         EVENT_TICKET_SCREEN,
+        MY_TICKETS_SCREEN,
+        MY_EVENTS_SCREEN,
     ).any { currentRoute?.contains(it) == true }
 
     Scaffold(
@@ -191,10 +193,8 @@ fun NavGraph(
                         when (selectedPage) {
                             "USER_PROFILE_SCREEN" -> navController.navigate(USER_PROFILE_SCREEN)
                             "CATEGORY_SCREEN" -> navController.navigate(CATEGORY_SCREEN)
-                            "MY_BOOKINGS_SCREEN" -> navController.navigate(FAVOURITE_SCREEN)
-                            "MY_EVENT_SCREEN" -> {
-                                // Logic for "My Events" screen
-                            }
+                            "MY_TICKETS_SCREEN" -> navController.navigate(MY_TICKETS_SCREEN)
+                            "MY_EVENT_SCREEN" -> navController.navigate(MY_EVENTS_SCREEN)
                             "LOGOUT" -> {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     try {
@@ -267,11 +267,15 @@ fun NavGraph(
             }
 
             composable(FAVOURITE_SCREEN) {
-                // FavoritesScreen placeholder
+                WishlistScreen(onBackClick = { navController.navigate(HOME_SCREEN) }, onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId")})
             }
 
-            composable(SEARCH_EVENT_SCREEN) {
-                // SearchScreen placeholder
+            composable(MY_TICKETS_SCREEN) {
+                MyTicketsScreen(onBackClick = { navController.navigate(HOME_SCREEN) }, onTicketClick = { ticketId -> navController.navigate("$EVENT_TICKET_SCREEN/$ticketId")})
+            }
+
+            composable(MY_EVENTS_SCREEN) {
+                MyEventsScreen(onBackClick = { navController.navigate(HOME_SCREEN) }, onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId")})
             }
 
             composable("$EVENT_DETAIL_SCREEN/{eventId}") { backStackEntry ->

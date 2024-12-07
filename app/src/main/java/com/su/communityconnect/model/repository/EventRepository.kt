@@ -33,6 +33,11 @@ class EventRepository(
         return snapshot.children.mapNotNull { it.getValue(EventDTO::class.java)?.toEvent() }
     }
 
+    suspend fun getEventsByOwnerId(userId: String): List<Event> {
+        val snapshot = eventsRef.orderByChild("createdBy").equalTo(userId).get().await()
+        return snapshot.children.mapNotNull { it.getValue(EventDTO::class.java)?.toEvent() }
+    }
+
     suspend fun saveEvent(event: Event) {
         val eventDTO = event.toEventDTO()
         eventsRef.child(event.id).setValue(eventDTO).await()
