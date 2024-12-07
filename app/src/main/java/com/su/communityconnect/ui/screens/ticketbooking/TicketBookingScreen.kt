@@ -36,7 +36,7 @@ fun TicketBookingScreen(
     eventId: String,
     userId: String,
     onBackClick: (String) -> Unit,
-    onPaymentSuccess: () -> Unit,
+    onPaymentSuccess: (String) -> Unit,
     viewModel: TicketBookingViewModel = hiltViewModel()
 ) {
     val eventState by viewModel.eventState.collectAsState()
@@ -44,7 +44,7 @@ fun TicketBookingScreen(
     var promoCode by remember { mutableStateOf("") }
     var discountApplied by remember { mutableStateOf(0.0) }
     val promoCodeError by viewModel.promoCodeError.collectAsState()
-    val isTicketCreated by viewModel.isTicketCreated.collectAsState()
+    val createdTicketId by viewModel.createdTicketId.collectAsState()
     val isPayButtonEnabled by viewModel.payButtonEnabled.collectAsState()
     val payButtonError by viewModel.payButtonError.collectAsState()
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale.getDefault())
@@ -53,9 +53,9 @@ fun TicketBookingScreen(
         viewModel.loadEvent(eventId, userId)
     }
 
-    if (isTicketCreated) {
+    if (createdTicketId != null) {
         LaunchedEffect(Unit) {
-            onPaymentSuccess()
+            onPaymentSuccess(createdTicketId!!)
         }
     }
 

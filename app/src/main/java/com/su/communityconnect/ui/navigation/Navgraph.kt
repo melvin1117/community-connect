@@ -30,6 +30,7 @@ import com.su.communityconnect.FAVOURITE_SCREEN
 import com.su.communityconnect.SEARCH_EVENT_SCREEN
 import com.su.communityconnect.EVENT_DETAIL_SCREEN
 import com.su.communityconnect.EVENT_TICKET_BOOKING_SCREEN
+import com.su.communityconnect.EVENT_TICKET_SCREEN
 import com.su.communityconnect.LOCATION_SELECTION_SCREEN
 import com.su.communityconnect.USER_PROFILE_SCREEN
 import com.su.communityconnect.model.service.AccountService
@@ -46,6 +47,7 @@ import com.su.communityconnect.model.state.UserState
 import com.su.communityconnect.ui.components.BottomNavBar
 import com.su.communityconnect.ui.screens.LocationSelectionScreen
 import com.su.communityconnect.ui.screens.eventdetail.EventDetailScreen
+import com.su.communityconnect.ui.screens.ticket.TicketScreen
 import com.su.communityconnect.ui.screens.ticketbooking.TicketBookingScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -114,7 +116,8 @@ fun NavGraph(
         FAVOURITE_SCREEN,
         SEARCH_EVENT_SCREEN,
         EVENT_SCREEN,
-        EVENT_TICKET_BOOKING_SCREEN
+        EVENT_TICKET_BOOKING_SCREEN,
+        EVENT_TICKET_SCREEN,
     ).any { currentRoute?.contains(it) == true }
 
     Scaffold(
@@ -284,9 +287,16 @@ fun NavGraph(
                     eventId = eventId,
                     userId = accountService.currentUserId,
                     onBackClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") },
-                    onPaymentSuccess = {
-                        // Handle map opening logic here
-                    },
+                    onPaymentSuccess = { ticketId -> navController.navigate("$EVENT_TICKET_SCREEN/$ticketId")},
+                )
+
+            }
+
+            composable("$EVENT_TICKET_SCREEN/{ticketId}") { backStackEntry ->
+                val ticketId = backStackEntry.arguments?.getString("ticketId") ?: return@composable
+                TicketScreen(
+                    ticketId = ticketId,
+                    onBackClick = { navController.navigate(HOME_SCREEN) }
                 )
 
             }

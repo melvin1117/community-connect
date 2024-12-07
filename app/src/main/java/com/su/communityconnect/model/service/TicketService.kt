@@ -8,4 +8,5 @@ interface TicketService {
     suspend fun getTicketsByUser(userId: String): List<Ticket>
     suspend fun updateTicket(ticket: Ticket): Ticket
     suspend fun validateTicket(ticketId: String, validationId: String, validatedBy: String): Ticket
+    suspend fun getTicketById(ticketId: String): Ticket?
 }

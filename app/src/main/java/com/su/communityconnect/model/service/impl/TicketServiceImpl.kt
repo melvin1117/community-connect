@@ -30,6 +30,10 @@ class TicketServiceImpl @Inject constructor(
         return ticketRepository.updateTicket(ticket)
     }
 
+    override suspend fun getTicketById(ticketId: String): Ticket? {
+        return ticketRepository.getTicketById(ticketId)
+    }
+
     override suspend fun validateTicket(ticketId: String, validationId: String, validatedBy: String): Ticket {
         val ticket = ticketRepository.getTicketById(ticketId)
             ?: throw IllegalArgumentException("Ticket with ID $ticketId not found.")

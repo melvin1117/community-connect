@@ -27,8 +27,8 @@ class TicketBookingViewModel @Inject constructor(
     private val _promoCodeError = MutableStateFlow<String?>(null)
     val promoCodeError: StateFlow<String?> = _promoCodeError
 
-    private val _isTicketCreated = MutableStateFlow<Boolean>(false)
-    val isTicketCreated: StateFlow<Boolean> = _isTicketCreated
+    private val _createdTicketId = MutableStateFlow<String?>(null)
+    val createdTicketId: StateFlow<String?> = _createdTicketId
 
     private val _payButtonEnabled = MutableStateFlow<Boolean>(true)
     val payButtonEnabled: StateFlow<Boolean> = _payButtonEnabled
@@ -166,11 +166,11 @@ class TicketBookingViewModel @Inject constructor(
                 )
 
                 // Save ticket and update ticketsBooked
-                ticketService.createTicket(ticket)
+                val createdTicket = ticketService.createTicket(ticket)
                 eventService.updateTicketsBookedCount(eventId, ticketCount)
 
                 // Notify success
-                _isTicketCreated.value = true
+                _createdTicketId.value = createdTicket.id
                 _payButtonError.value = null // Clear any errors
             } catch (e: Exception) {
                 _payButtonError.value = e.localizedMessage ?: "An error occurred during booking."
