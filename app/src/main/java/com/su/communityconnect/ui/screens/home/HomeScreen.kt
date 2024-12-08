@@ -64,10 +64,8 @@ fun HomeScreen(
         if (isPermissionGranted) {
             val preferredCity = UserState.userState.value?.preferredCity
             if (!preferredCity.isNullOrBlank()) {
-                // Fetch trending events for the preferred city
                 viewModel.fetchTrendingEvents(preferredCity)
             } else if (locationName.isBlank()) {
-                // If no preferred city, fetch current location
                 val locationProvider = LocationProvider(context)
                 val location = locationProvider.getCurrentLocation()
                 location?.city?.let { viewModel.fetchTrendingEvents(it) }
@@ -77,7 +75,6 @@ fun HomeScreen(
             onRequestLocationPermission()
         }
     }
-
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -91,7 +88,8 @@ fun HomeScreen(
                 Text(
                     text = stringResource(
                         R.string.greeting_message,
-                        userState?.displayName?.split(" ")?.firstOrNull() ?: stringResource(R.string.default_user_name)
+                        userState?.displayName?.split(" ")?.firstOrNull()
+                            ?: stringResource(R.string.default_user_name)
                     ),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
@@ -99,7 +97,6 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f)
                 )
 
-                // Location Box
                 Box(
                     modifier = Modifier
                         .background(
@@ -129,7 +126,7 @@ fun HomeScreen(
                 ProfilePicture(
                     imageUrl = userState?.profilePictureUrl,
                     displayName = userState?.displayName,
-                    onImageSelected = {}, // Handle image selection if needed
+                    onImageSelected = {},
                     size = 40,
                     profileClicked = {
                         coroutineScope.launch { isDrawerOpen.value = true }
@@ -145,28 +142,30 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Trending Events Section
-                item {
-                    Text(
-                        text = stringResource(R.string.trending_events_title),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.padding(start = 16.dp, top = 8.dp)
-                    )
-                }
-                item {
-                    LazyRow(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(trendingEvents) { event ->
-                            EventCard(
-                                event = event,
-                                isFavorite = favoriteEvents.contains(event.id),
-                                onFavoriteClick = { eventId -> viewModel.toggleFavorite(eventId) },
-                                onEventClick = { eventId -> onEventClick(eventId) },
-                                modifier = Modifier.fillParentMaxWidth(0.93f)
-                            )
+                if (trendingEvents.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.trending_events_title),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                            modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                        )
+                    }
+                    item {
+                        LazyRow(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(trendingEvents) { event ->
+                                EventCard(
+                                    event = event,
+                                    isFavorite = favoriteEvents.contains(event.id),
+                                    onFavoriteClick = { eventId -> viewModel.toggleFavorite(eventId) },
+                                    onEventClick = { eventId -> onEventClick(eventId) },
+                                    modifier = Modifier.fillParentMaxWidth(0.93f)
+                                )
+                            }
                         }
                     }
                 }
@@ -206,31 +205,41 @@ fun HomeScreen(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                 }
-                items(upcomingEvents.chunked(2)) { rowEvents ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        rowEvents.forEach { event ->
-                            EventMiniCard(
-                                event = event,
-                                isFavorite = favoriteEvents.contains(event.id),
-                                onFavoriteClick = { eventId -> viewModel.toggleFavorite(eventId) },
-                                onEventClick = { eventId -> onEventClick(eventId) },
-                                modifier = Modifier.weight(1f)
-                            )
+
+                if (upcomingEvents.isNotEmpty()) {
+                    items(upcomingEvents.chunked(2)) { rowEvents ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            rowEvents.forEach { event ->
+                                EventMiniCard(
+                                    event = event,
+                                    isFavorite = favoriteEvents.contains(event.id),
+                                    onFavoriteClick = { eventId -> viewModel.toggleFavorite(eventId) },
+                                    onEventClick = { eventId -> onEventClick(eventId) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            if (rowEvents.size == 1) Spacer(modifier = Modifier.weight(1f))
                         }
-                        // Add spacer if there is an odd number of events
-                        if (rowEvents.size == 1) Spacer(modifier = Modifier.weight(1f))
+                    }
+                } else {
+                    item {
+                        Text(
+                            text = stringResource(R.string.no_upcoming_events),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
                     }
                 }
             }
         }
     )
 
-    // Drawer Content
     Box(modifier = Modifier.fillMaxSize()) {
         if (isDrawerOpen.collectAsState().value) {
             Row {
@@ -243,20 +252,17 @@ fun HomeScreen(
                     SideNavigationDrawer(
                         itemClicked = { selectedPage ->
                             coroutineScope.launch {
-                                isDrawerOpen.value = false // Close the drawer
-                                drawerItemClicked(selectedPage) // Trigger navigation
+                                isDrawerOpen.value = false
+                                drawerItemClicked(selectedPage)
                             }
                         }
                     )
                 }
-
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable {
-                            coroutineScope.launch {
-                                isDrawerOpen.value = false // Close the drawer
-                            }
+                            coroutineScope.launch { isDrawerOpen.value = false }
                         }
                         .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
                 )

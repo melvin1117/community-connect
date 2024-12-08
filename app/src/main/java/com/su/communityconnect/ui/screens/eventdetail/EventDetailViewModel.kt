@@ -69,7 +69,7 @@ class EventDetailViewModel @Inject constructor(
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_SUBJECT, "Check out this event: $title")
-            putExtra(Intent.EXTRA_TEXT, "Event Details:\n$title\n$description")
+            putExtra(Intent.EXTRA_TEXT, "Event Details:$title\n$description")
         }
         context.startActivity(Intent.createChooser(shareIntent, "Share Event via"))
     }

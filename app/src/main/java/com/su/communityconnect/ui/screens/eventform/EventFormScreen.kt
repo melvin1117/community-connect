@@ -1,5 +1,6 @@
-package com.su.communityconnect.ui.screens.event
+package com.su.communityconnect.ui.screens.eventform
 
+import android.net.Uri
 import androidx.compose.ui.text.input.KeyboardType
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.su.communityconnect.NO_EVENT_ID
 import com.su.communityconnect.model.Event
 import com.su.communityconnect.model.EventLocation
 import com.su.communityconnect.model.PromoCode
@@ -24,8 +26,8 @@ import com.su.communityconnect.R
 
 @Composable
 fun EventFormScreen(
-    viewModel: EventViewModel = hiltViewModel(),
-    existingEvent: Event? = null,
+    eventId: String? = null,
+    viewModel: EventFormViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
     onEventSaved: () -> Unit
 ) {
@@ -36,20 +38,22 @@ fun EventFormScreen(
 
     var isLoading by remember { mutableStateOf(false) }
 
-    LaunchedEffect(existingEvent) {
-        existingEvent?.let { viewModel.initializeForm(it) }
+    LaunchedEffect(eventId) {
+        if (!eventId.isNullOrEmpty()) {
+            viewModel.loadEvent(eventId)
+        }
     }
 
     LaunchedEffect(validationError.value) {
         validationError.value?.let { error ->
             val errorMessage = when (error) {
-                EventValidationError.TITLE_REQUIRED -> context.getString(R.string.error_title_required)
-                EventValidationError.DESCRIPTION_REQUIRED -> context.getString(R.string.error_description_required)
-                EventValidationError.INVALID_EVENT_DATE -> context.getString(R.string.error_invalid_event_date)
-                EventValidationError.INVALID_BOOKING_START_DATE -> context.getString(R.string.error_invalid_booking_start_date)
-                EventValidationError.INVALID_BOOKING_END_DATE -> context.getString(R.string.error_invalid_booking_end_date)
-                EventValidationError.INVALID_CAPACITY -> context.getString(R.string.error_invalid_capacity)
-                EventValidationError.INVALID_PRICE -> context.getString(R.string.error_invalid_price)
+                EventFormValidationError.TITLE_REQUIRED -> context.getString(R.string.error_title_required)
+                EventFormValidationError.DESCRIPTION_REQUIRED -> context.getString(R.string.error_description_required)
+                EventFormValidationError.INVALID_EVENT_DATE -> context.getString(R.string.error_invalid_event_date)
+                EventFormValidationError.INVALID_BOOKING_START_DATE -> context.getString(R.string.error_invalid_booking_start_date)
+                EventFormValidationError.INVALID_BOOKING_END_DATE -> context.getString(R.string.error_invalid_booking_end_date)
+                EventFormValidationError.INVALID_CAPACITY -> context.getString(R.string.error_invalid_capacity)
+                EventFormValidationError.INVALID_PRICE -> context.getString(R.string.error_invalid_price)
             }
             Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
         }
@@ -88,7 +92,7 @@ fun EventFormScreen(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = if (existingEvent == null) stringResource(R.string.create_event) else stringResource(R.string.edit_event),
+                        text = if (eventId != NO_EVENT_ID) stringResource(R.string.create_event) else stringResource(R.string.edit_event),
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
@@ -132,6 +136,7 @@ fun EventFormScreen(
 
                     item {
                         DateTimePickerField(
+                            initialSelectedDateTime = formState.value.eventDate,
                             label = stringResource(R.string.label_event_date),
                             onDateTimeSelected = { viewModel.updateForm { copy(eventDate = it) } }
                         )
@@ -139,6 +144,7 @@ fun EventFormScreen(
 
                     item {
                         DateTimePickerField(
+                            initialSelectedDateTime = formState.value.bookingStartDate,
                             label = stringResource(R.string.label_booking_start_date),
                             onDateTimeSelected = { viewModel.updateForm { copy(bookingStartDate = it) } }
                         )
@@ -146,6 +152,7 @@ fun EventFormScreen(
 
                     item {
                         DateTimePickerField(
+                            initialSelectedDateTime = formState.value.bookingEndDate,
                             label = stringResource(R.string.label_booking_end_date),
                             onDateTimeSelected = { viewModel.updateForm { copy(bookingEndDate = it) } }
                         )
@@ -154,6 +161,7 @@ fun EventFormScreen(
                     item {
                         LocationAutocompleteField(
                             context = context,
+                            initialQuery = formState.value.location.displayName,
                             label = stringResource(R.string.label_event_location),
                             placeholder = stringResource(R.string.placeholder_event_location),
                             onLocationSelected = { id, city, shortAddress, fullAddress, lat, lng, displayName ->
@@ -296,6 +304,7 @@ fun EventFormScreen(
 
                     item {
                         ImageUploaderField(
+                            initialSelectedImages = formState.value.images.map { Uri.parse(it) },
                             label = stringResource(R.string.label_event_images),
                             maxImages = 5,
                             onImagesSelected = { images ->
@@ -313,7 +322,7 @@ fun EventFormScreen(
                         ) {
                             PrimaryButton(
                                 horizontalPadding = 20.dp,
-                                text = if (existingEvent == null) stringResource(R.string.submit) else stringResource(R.string.save_changes),
+                                text = if (eventId != NO_EVENT_ID) stringResource(R.string.submit) else stringResource(R.string.save_changes),
                                 onClick = {
                                     isLoading = true
                                     viewModel.validateAndSaveEvent(

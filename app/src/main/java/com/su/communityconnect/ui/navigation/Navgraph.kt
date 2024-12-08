@@ -19,22 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.su.communityconnect.CATEGORY_SCREEN
-import com.su.communityconnect.EVENT_SCREEN
-import com.su.communityconnect.FORGOT_PASSWORD_SCREEN
-import com.su.communityconnect.HOME_SCREEN
-import com.su.communityconnect.SIGN_IN_SCREEN
-import com.su.communityconnect.SIGN_UP_SCREEN
-import com.su.communityconnect.SPLASH_SCREEN
-import com.su.communityconnect.FAVOURITE_SCREEN
-import com.su.communityconnect.EVENT_DETAIL_SCREEN
-import com.su.communityconnect.EVENT_TICKET_BOOKING_SCREEN
-import com.su.communityconnect.EVENT_TICKET_SCREEN
-import com.su.communityconnect.LOCATION_SELECTION_SCREEN
-import com.su.communityconnect.MAP_SCREEN
-import com.su.communityconnect.MY_TICKETS_SCREEN
-import com.su.communityconnect.MY_EVENTS_SCREEN
-import com.su.communityconnect.USER_PROFILE_SCREEN
+import com.su.communityconnect.*
 import com.su.communityconnect.model.service.AccountService
 import com.su.communityconnect.model.service.UserService
 import com.su.communityconnect.ui.screens.SplashScreen
@@ -42,7 +27,7 @@ import com.su.communityconnect.ui.screens.authentication.forgotpassword.ForgotPa
 import com.su.communityconnect.ui.screens.authentication.signin.SignInScreen
 import com.su.communityconnect.ui.screens.authentication.signup.SignUpScreen
 import com.su.communityconnect.ui.screens.category.CategoryScreen
-import com.su.communityconnect.ui.screens.event.EventFormScreen
+import com.su.communityconnect.ui.screens.eventform.EventFormScreen
 import com.su.communityconnect.ui.screens.home.HomeScreen
 import com.su.communityconnect.ui.screens.userprofile.UserProfileScreen
 import com.su.communityconnect.model.state.UserState
@@ -74,13 +59,15 @@ fun NavGraph(
         onResult = { granted ->
             locationPermissionGranted.value = granted
             if (!granted) {
-                Toast.makeText(context, "Location permission is required.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.location_permission_required),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     )
 
-
-    // Initialize user state
     LaunchedEffect(Unit) {
         if (accountService.hasUser()) {
             try {
@@ -97,30 +84,31 @@ fun NavGraph(
                     UserState.updateUser(newUser)
                 }
             } catch (e: Exception) {
-                Toast.makeText(context, "Failed to load user data: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.failed_to_load_user_data, e.localizedMessage),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
 
-    // Determine the start destination dynamically
     val startDestination = when {
         !accountService.hasUser() -> SPLASH_SCREEN
-        userState == null -> SPLASH_SCREEN // Wait for UserState to load
+        userState == null -> SPLASH_SCREEN
         userState.displayName.isEmpty() -> USER_PROFILE_SCREEN
         userState.preferredCategories.isEmpty() -> CATEGORY_SCREEN
         else -> HOME_SCREEN
     }
 
-    // Observe the current route dynamically
-    val currentRoute = navController.currentBackStackEntryAsState()?.value?.destination?.route
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
-    // Check if BottomNavBar should be shown
     val showBottomNav = listOf(
         HOME_SCREEN,
         LOCATION_SELECTION_SCREEN,
         EVENT_DETAIL_SCREEN,
         FAVOURITE_SCREEN,
-        EVENT_SCREEN,
+        EVENT_FORM_SCREEN,
         EVENT_TICKET_BOOKING_SCREEN,
         EVENT_TICKET_SCREEN,
         MY_TICKETS_SCREEN,
@@ -134,14 +122,14 @@ fun NavGraph(
                 BottomNavBar(
                     selectedItem = when (currentRoute) {
                         HOME_SCREEN -> 0
-                        EVENT_SCREEN -> 1
+                        EVENT_FORM_SCREEN -> 1
                         FAVOURITE_SCREEN -> 2
                         else -> 0
                     },
                     onItemSelected = { index ->
                         when (index) {
                             0 -> navController.navigate(HOME_SCREEN) { launchSingleTop = true }
-                            1 -> navController.navigate(EVENT_SCREEN) { launchSingleTop = true }
+                            1 -> navController.navigate("$EVENT_FORM_SCREEN/$NO_EVENT_ID") { launchSingleTop = true }
                             2 -> navController.navigate(FAVOURITE_SCREEN) { launchSingleTop = true }
                         }
                     }
@@ -191,11 +179,11 @@ fun NavGraph(
                     },
                     drawerItemClicked = { selectedPage ->
                         when (selectedPage) {
-                            "USER_PROFILE_SCREEN" -> navController.navigate(USER_PROFILE_SCREEN)
-                            "CATEGORY_SCREEN" -> navController.navigate(CATEGORY_SCREEN)
-                            "MY_TICKETS_SCREEN" -> navController.navigate(MY_TICKETS_SCREEN)
-                            "MY_EVENT_SCREEN" -> navController.navigate(MY_EVENTS_SCREEN)
-                            "LOGOUT" -> {
+                            USER_PROFILE_SCREEN -> navController.navigate(USER_PROFILE_SCREEN)
+                            CATEGORY_SCREEN -> navController.navigate(CATEGORY_SCREEN)
+                            MY_TICKETS_SCREEN -> navController.navigate(MY_TICKETS_SCREEN)
+                            MY_EVENTS_SCREEN -> navController.navigate(MY_EVENTS_SCREEN)
+                            LOGOUT -> {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     try {
                                         accountService.signOut()
@@ -206,7 +194,7 @@ fun NavGraph(
                                     } catch (e: Exception) {
                                         Toast.makeText(
                                             context,
-                                            "Error during logout: ${e.localizedMessage}",
+                                            context.getString(R.string.error_during_logout, e.localizedMessage),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -215,14 +203,13 @@ fun NavGraph(
                         }
                     },
                     onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") },
-                    isPermissionGranted = locationPermissionGranted.value // Pass the state
+                    isPermissionGranted = locationPermissionGranted.value
                 )
             }
 
             composable(LOCATION_SELECTION_SCREEN) {
                 LocationSelectionScreen(
                     onLocationSelected = { city ->
-                        // Update HomeScreen with the selected city
                         UserState.updateUser(UserState.userState.value!!.copy(preferredCity = city))
                         navController.navigate(HOME_SCREEN)
                     },
@@ -233,8 +220,13 @@ fun NavGraph(
                 )
             }
 
-            composable(EVENT_SCREEN) {
+            composable("$EVENT_FORM_SCREEN/{eventId}") { backStackEntry ->
+                var eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+                if (eventId == NO_EVENT_ID) {
+                    eventId = ""
+                }
                 EventFormScreen(
+                    eventId = eventId,
                     onBackClick = { navController.popBackStack() },
                     onEventSaved = { navController.navigate(HOME_SCREEN) }
                 )
@@ -267,15 +259,24 @@ fun NavGraph(
             }
 
             composable(FAVOURITE_SCREEN) {
-                WishlistScreen(onBackClick = { navController.navigate(HOME_SCREEN) }, onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId")})
+                WishlistScreen(
+                    onBackClick = { navController.navigate(HOME_SCREEN) },
+                    onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") }
+                )
             }
 
             composable(MY_TICKETS_SCREEN) {
-                MyTicketsScreen(onBackClick = { navController.navigate(HOME_SCREEN) }, onTicketClick = { ticketId -> navController.navigate("$EVENT_TICKET_SCREEN/$ticketId")})
+                MyTicketsScreen(
+                    onBackClick = { navController.navigate(HOME_SCREEN) },
+                    onTicketClick = { ticketId -> navController.navigate("$EVENT_TICKET_SCREEN/$ticketId") }
+                )
             }
 
             composable(MY_EVENTS_SCREEN) {
-                MyEventsScreen(onBackClick = { navController.navigate(HOME_SCREEN) }, onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId")})
+                MyEventsScreen(
+                    onBackClick = { navController.navigate(HOME_SCREEN) },
+                    onEventClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") }
+                )
             }
 
             composable("$EVENT_DETAIL_SCREEN/{eventId}") { backStackEntry ->
@@ -285,6 +286,7 @@ fun NavGraph(
                     onBackClick = { navController.navigate(HOME_SCREEN) },
                     onMapClick = { navController.navigate("$MAP_SCREEN/$eventId") },
                     onAttendClick = { eventId -> navController.navigate("$EVENT_TICKET_BOOKING_SCREEN/$eventId") },
+                    onEditClick = { eventId -> navController.navigate("$EVENT_FORM_SCREEN/$eventId") },
                 )
             }
 
@@ -294,7 +296,7 @@ fun NavGraph(
                     eventId = eventId,
                     userId = accountService.currentUserId,
                     onBackClick = { eventId -> navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") },
-                    onPaymentSuccess = { ticketId -> navController.navigate("$EVENT_TICKET_SCREEN/$ticketId")},
+                    onPaymentSuccess = { ticketId -> navController.navigate("$EVENT_TICKET_SCREEN/$ticketId") },
                 )
 
             }
@@ -312,8 +314,6 @@ fun NavGraph(
                 val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
                 MapScreen(onBackClick = { navController.navigate("$EVENT_DETAIL_SCREEN/$eventId") })
             }
-
-
         }
     }
 }

@@ -159,4 +159,26 @@
     <string name="event_time_location">%1$s at %2$s</string>
     <string name="event_paid">Paid</string>
     <string name="event_free">Free</string>
+    <string name="download_ticket">Download Ticket</string>
+    <string name="qr_code">QR Code</string>
+    <string name="get_directions">Get Directions</string>
+    <string name="general_guidelines">General Guidelines:</string>
+    <string name="label_location">Location</string>
+    <string name="label_date">Date</string>
+    <string name="label_time">Time</string>
+    <string name="label_quantity">Quantity</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_category_preference">Category Preference</string>
+    <string name="nav_my_tickets">My Tickets</string>
+    <string name="nav_my_events">My Events</string>
+    <string name="nav_logout">Logout</string>
+    <string name="no_upcoming_events">No upcoming event. Try again later.</string>
+    <string name="location_permission_required">Location permission is required.</string>
+    <string name="failed_to_load_user_data">Failed to load user data: %1$s</string>
+    <string name="error_during_logout">Error during logout: %1$s</string>
+    <string name="unknown_city">Unknown City</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_add">Add</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="icon_edit">Edit</string>
 </resources>

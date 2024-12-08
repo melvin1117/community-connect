@@ -7,6 +7,7 @@ import android.location.Geocoder
 import android.location.Location
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
+import com.su.communityconnect.R
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.*
 import kotlin.coroutines.resume
@@ -57,7 +58,7 @@ class LocationProvider(private val context: Context) {
         val geocoder = Geocoder(context, Locale.getDefault())
         val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
         if (!addresses.isNullOrEmpty()) {
-            val city = addresses[0].locality ?: "Unknown City"
+            val city = addresses[0].locality ?: context.getString(R.string.unknown_city)
             continuation.resume(LocationData(city = city))
         } else {
             continuation.resume(null)

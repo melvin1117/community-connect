@@ -46,7 +46,7 @@ object PDFProvider {
             // Define the file path
             val filePath = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                "Ticket_${ticket.id}.pdf"
+                "${event.title}_${ticket.id}.pdf"
             )
 
             // Write the document content

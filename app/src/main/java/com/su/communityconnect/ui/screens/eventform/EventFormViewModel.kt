@@ -1,14 +1,13 @@
-package com.su.communityconnect.ui.screens.event
+package com.su.communityconnect.ui.screens.eventform
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
 import com.su.communityconnect.model.Category
 import com.su.communityconnect.model.Event
 import com.su.communityconnect.model.EventLocation
 import com.su.communityconnect.model.PromoCode
 import com.su.communityconnect.model.TicketLifecycle
+import com.su.communityconnect.model.TicketLifecycleDTO
 import com.su.communityconnect.model.service.AccountService
 import com.su.communityconnect.model.service.CategoryService
 import com.su.communityconnect.model.service.EventService
@@ -23,8 +22,7 @@ import network.chaintech.kmp_date_time_picker.utils.now
 import javax.inject.Inject
 
 @HiltViewModel
-class EventViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+class EventFormViewModel @Inject constructor(
     private val categoryService: CategoryService,
     private val eventService: EventService,
     private val accountService: AccountService
@@ -33,17 +31,14 @@ class EventViewModel @Inject constructor(
     private val _eventFormState = MutableStateFlow(EventFormState())
     val eventFormState: StateFlow<EventFormState> = _eventFormState.asStateFlow()
 
-    private val _validationError = MutableStateFlow<EventValidationError?>(null)
-    val validationError: StateFlow<EventValidationError?> = _validationError.asStateFlow()
+    private val _validationError = MutableStateFlow<EventFormValidationError?>(null)
+    val validationError: StateFlow<EventFormValidationError?> = _validationError.asStateFlow()
 
     private val _categories = MutableStateFlow<List<Category>>(emptyList())
     val categories: StateFlow<List<Category>> = _categories.asStateFlow()
 
     init {
         fetchCategories()
-        val eventJson: String? = savedStateHandle["existingEvent"]
-        val existingEvent = eventJson?.let { Gson().fromJson(it, Event::class.java) }
-        existingEvent?.let { initializeForm(it) }
     }
 
     private fun fetchCategories() {
@@ -57,23 +52,33 @@ class EventViewModel @Inject constructor(
         }
     }
 
-    fun initializeForm(event: Event) {
-        _eventFormState.value = EventFormState(
-            id = event.id,
-            title = event.title,
-            description = event.description,
-            category = event.category,
-            guideline = event.guideline,
-            location = event.location,
-            eventDate = event.eventTimestamp,
-            bookingStartDate = event.ticketLifecycle.liveFrom,
-            bookingEndDate = event.ticketLifecycle.endsOn,
-            totalCapacity = event.maxTickets,
-            costPerTicket = event.price,
-            ticketLimitPerPerson = event.perUserTicketLimit,
-            images = event.images.toList(),
-            promoCode = event.promoCode
-        )
+    fun loadEvent(eventId: String) {
+        viewModelScope.launch {
+            try {
+                val event = eventService.getEvent(eventId)
+                event?.let {
+                    _eventFormState.value = EventFormState(
+                        id = it.id,
+                        title = it.title,
+                        description = it.description,
+                        category = it.category,
+                        guideline = it.guideline,
+                        location = it.location,
+                        eventDate = it.eventTimestamp,
+                        bookingStartDate = it.ticketLifecycle.liveFrom,
+                        bookingEndDate = it.ticketLifecycle.endsOn,
+                        totalCapacity = it.maxTickets,
+                        costPerTicket = it.price,
+                        ticketLimitPerPerson = it.perUserTicketLimit,
+                        images = it.images.toList(),
+                        promoCode = it.promoCode,
+                        ticketsBooked = it.ticketsBooked,
+                    )
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     fun updateForm(update: EventFormState.() -> EventFormState) {
@@ -108,7 +113,8 @@ class EventViewModel @Inject constructor(
             ),
             perUserTicketLimit = formState.ticketLimitPerPerson ?: 0,
             images = emptyList(),
-            promoCode = formState.promoCode
+            promoCode = formState.promoCode,
+            ticketsBooked = formState.ticketsBooked
         )
 
         viewModelScope.launch {
@@ -125,25 +131,25 @@ class EventViewModel @Inject constructor(
     }
 
 
-    private fun validateForm(formState: EventFormState): EventValidationError? {
+    private fun validateForm(formState: EventFormState): EventFormValidationError? {
         val now = LocalDateTime.now()
-        val eventDate = formState.eventDate ?: return EventValidationError.INVALID_EVENT_DATE
+        val eventDate = formState.eventDate ?: return EventFormValidationError.INVALID_EVENT_DATE
         val bookingStart = formState.bookingStartDate ?: now
         val bookingEnd = formState.bookingEndDate ?: eventDate
 
         if (eventDate.toJavaLocalDateTime().isBefore(now.toJavaLocalDateTime())) {
-            return EventValidationError.INVALID_EVENT_DATE
+            return EventFormValidationError.INVALID_EVENT_DATE
         }
         if (bookingStart.toJavaLocalDateTime().isAfter(eventDate.toJavaLocalDateTime())) {
-            return EventValidationError.INVALID_BOOKING_START_DATE
+            return EventFormValidationError.INVALID_BOOKING_START_DATE
         }
         if (bookingEnd.toJavaLocalDateTime().isBefore(bookingStart.toJavaLocalDateTime())) {
-            return EventValidationError.INVALID_BOOKING_END_DATE
+            return EventFormValidationError.INVALID_BOOKING_END_DATE
         }
-        if (formState.title.isBlank()) return EventValidationError.TITLE_REQUIRED
-        if (formState.description.isBlank()) return EventValidationError.DESCRIPTION_REQUIRED
-        if (formState.totalCapacity <= 0) return EventValidationError.INVALID_CAPACITY
-        if (formState.costPerTicket < 0.0) return EventValidationError.INVALID_PRICE
+        if (formState.title.isBlank()) return EventFormValidationError.TITLE_REQUIRED
+        if (formState.description.isBlank()) return EventFormValidationError.DESCRIPTION_REQUIRED
+        if (formState.totalCapacity <= 0) return EventFormValidationError.INVALID_CAPACITY
+        if (formState.costPerTicket < 0.0) return EventFormValidationError.INVALID_PRICE
 
         return null
     }
@@ -164,4 +170,5 @@ data class EventFormState(
     val ticketLimitPerPerson: Int? = 2,
     val images: List<String> = emptyList(),
     val promoCode: List<PromoCode> = emptyList(),
+    val ticketsBooked: Int = 0,
 )

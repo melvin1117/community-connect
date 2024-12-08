@@ -48,6 +48,9 @@ class EventRepository(
     }
 
     suspend fun uploadImage(userId: String, eventId: String, imageUri: String): String {
+        if (imageUri.startsWith("https://firebasestorage.googleapis.com/")) {
+            return imageUri
+        }
         val fileRef = storage.reference
             .child("event_images")
             .child(userId)
@@ -77,7 +80,8 @@ class EventRepository(
             ),
             perUserTicketLimit = perUserTicketLimit,
             images = images,
-            promoCode = promoCode
+            promoCode = promoCode,
+            ticketsBooked = ticketsBooked
         )
     }
 
@@ -99,7 +103,8 @@ class EventRepository(
             ),
             perUserTicketLimit = perUserTicketLimit,
             images = images,
-            promoCode = promoCode
+            promoCode = promoCode,
+            ticketsBooked = ticketsBooked,
         )
     }
 

@@ -16,32 +16,60 @@ import com.su.communityconnect.ui.components.PrimaryButton
 
 @Composable
 fun SplashScreen(onNavigateToSignIn: () -> Unit) {
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.applogo),
-                contentDescription = "App Logo",
-                modifier = Modifier.size(120.dp)
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            Text(
-                text = stringResource(R.string.community).uppercase(),
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Black)
-            )
-            Text(
-                text = stringResource(R.string.connect).uppercase(),
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Light)
-            )
+        val isLandscape = maxWidth > maxHeight
+
+        if (isLandscape) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+                    .padding(top = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.applogo),
+                    contentDescription = "App Logo",
+                    modifier = Modifier.size(120.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.community).uppercase(),
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Black)
+                )
+                Text(
+                    text = stringResource(R.string.connect).uppercase(),
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Light)
+                )
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.applogo),
+                    contentDescription = "App Logo",
+                    modifier = Modifier.size(120.dp)
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = stringResource(R.string.community).uppercase(),
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Black)
+                )
+                Text(
+                    text = stringResource(R.string.connect).uppercase(),
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Light)
+                )
+            }
         }
+
         PrimaryButton(
             text = stringResource(R.string.lets_connect),
             onClick = onNavigateToSignIn,

@@ -43,6 +43,7 @@ fun TicketBookingScreen(
     var ticketCount by remember { mutableStateOf(1) }
     var promoCode by remember { mutableStateOf("") }
     var discountApplied by remember { mutableStateOf(0.0) }
+    var promoCodeApplied by remember { mutableStateOf(false) }
     val promoCodeError by viewModel.promoCodeError.collectAsState()
     val createdTicketId by viewModel.createdTicketId.collectAsState()
     val isPayButtonEnabled by viewModel.payButtonEnabled.collectAsState()
@@ -81,16 +82,13 @@ fun TicketBookingScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                // Event Card at Top
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                         .height(250.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                    )
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Box {
                         val painter = rememberAsyncImagePainter(event.images.firstOrNull())
@@ -154,7 +152,6 @@ fun TicketBookingScreen(
                     ) {
                         Text("Tickets", style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.weight(1f))
-                        // Update ticket count and recalculate discount
                         IconButton(onClick = {
                             if (ticketCount > 1) {
                                 ticketCount -= 1
@@ -197,7 +194,10 @@ fun TicketBookingScreen(
                         ) {
                             OutlinedTextField(
                                 value = promoCode,
-                                onValueChange = { promoCode = it.uppercase() },
+                                onValueChange = {
+                                    promoCode = it.uppercase()
+                                    promoCodeApplied = false
+                                },
                                 placeholder = { Text("Enter your code") },
                                 shape = RoundedCornerShape(50.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -212,6 +212,7 @@ fun TicketBookingScreen(
                             OutlinedButton(
                                 onClick = {
                                     discountApplied = viewModel.applyPromoCode(promoCode, event, ticketCount)
+                                    promoCodeApplied = discountApplied > 0
                                 },
                                 colors = ButtonDefaults.outlinedButtonColors(
                                     contentColor = MaterialTheme.colorScheme.background
@@ -221,25 +222,27 @@ fun TicketBookingScreen(
                                 Text("Apply")
                             }
                         }
-                        // Show error or success message outside the Row
                         Spacer(Modifier.height(8.dp))
-                        promoCodeError?.let {
-                            Text(
-                                text = it,
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                        if (promoCode.isNotEmpty() && promoCodeError == null) {
-                            Text(
-                                text = "Promo code applied successfully!",
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.bodySmall
-                            )
+
+                        // Show error or success message
+                        when {
+                            promoCodeError != null -> {
+                                Text(
+                                    text = promoCodeError!!,
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            promoCodeApplied -> {
+                                Text(
+                                    text = "Promo code applied successfully!",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         }
                     }
                 }
-
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -331,7 +334,6 @@ fun TicketBookingScreen(
                         enabled = isPayButtonEnabled,
                     )
                 }
-
             }
         }
     }

@@ -1,6 +1,6 @@
-package com.su.communityconnect.ui.screens.event
+package com.su.communityconnect.ui.screens.eventform
 
-enum class EventValidationError {
+enum class EventFormValidationError {
     TITLE_REQUIRED,
     DESCRIPTION_REQUIRED,
     INVALID_EVENT_DATE,

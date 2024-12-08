@@ -21,19 +21,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.qrcode.QRCodeWriter
+import com.su.communityconnect.R
+import com.su.communityconnect.model.provider.generateQRCode
 import com.su.communityconnect.model.state.EventLocationState
 import com.su.communityconnect.ui.components.BackButton
 import com.su.communityconnect.ui.components.PrimaryButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
 
 @Composable
 fun TicketScreen(
@@ -47,7 +47,6 @@ fun TicketScreen(
     val pdfDownloadState by viewModel.pdfDownloadState.collectAsState()
     val context = LocalContext.current
 
-
     LaunchedEffect(ticketId) {
         viewModel.loadTicket(ticketId)
     }
@@ -58,7 +57,6 @@ fun TicketScreen(
             viewModel.resetPdfDownloadState()
         }
     }
-
 
     when (val state = ticketState) {
         is TicketState.Loading -> {
@@ -84,18 +82,16 @@ fun TicketScreen(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
             ) {
-                // Floating Circles for Ticket Shape
-                // Floating Circles for Ticket Shape
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(240.dp) // Match the height of the image card
-                        .zIndex(10f), // Ensure circles are above all elements
-                    contentAlignment = Alignment.BottomCenter // Align circles at the bottom
+                        .height(240.dp)
+                        .zIndex(10f),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(50.dp)
+                            .size(45.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surface)
                             .absoluteOffset(x = (-25).dp, y = 0.dp) // Position for left circle
@@ -103,7 +99,7 @@ fun TicketScreen(
                     )
                     Box(
                         modifier = Modifier
-                            .size(50.dp)
+                            .size(45.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surface)
                             .absoluteOffset(x =25.dp, y = 0.dp) // Position for right circle
@@ -170,7 +166,7 @@ fun TicketScreen(
                                 content = {
                                     Icon(
                                         imageVector = Icons.Outlined.FileDownload,
-                                        contentDescription = "Download Ticket",
+                                        contentDescription = stringResource(R.string.download_ticket),
                                         tint = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
@@ -208,7 +204,7 @@ fun TicketScreen(
                             qrCodeBitmap?.let { qrBitmap ->
                                 Image(
                                     bitmap = qrBitmap.asImageBitmap(),
-                                    contentDescription = "QR Code",
+                                    contentDescription = stringResource(R.string.qr_code),
                                     modifier = Modifier.size(120.dp)
                                 )
                             } ?: CircularProgressIndicator()
@@ -222,7 +218,7 @@ fun TicketScreen(
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = "Location",
+                                        text = stringResource(R.string.label_location),
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -234,7 +230,7 @@ fun TicketScreen(
                                 }
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = "Date",
+                                        text = stringResource(R.string.label_date),
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -246,7 +242,7 @@ fun TicketScreen(
                                 }
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = "Time",
+                                        text = stringResource(R.string.label_time),
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -258,7 +254,7 @@ fun TicketScreen(
                                 }
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = "Quantity",
+                                        text = stringResource(R.string.label_quantity),
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -280,7 +276,7 @@ fun TicketScreen(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "General Guidelines:",
+                            text = stringResource(R.string.general_guidelines),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -299,7 +295,7 @@ fun TicketScreen(
                         contentAlignment = Alignment.BottomCenter
                     ) {
                         PrimaryButton(
-                            text = "Get Directions",
+                            text = stringResource(R.string.get_directions),
                             onClick = {
                                 EventLocationState.setEventLocation(event.location)
                                 onMapClick(event.id)
@@ -310,18 +306,4 @@ fun TicketScreen(
             }
         }
     }
-}
-
-
-// QR Code Generator
-suspend fun generateQRCode(content: String): Bitmap = withContext(Dispatchers.Default) {
-    val writer = QRCodeWriter()
-    val bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, 256, 256)
-    val bitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.RGB_565)
-    for (x in 0 until 256) {
-        for (y in 0 until 256) {
-            bitmap.setPixel(x, y, if (bitMatrix[x, y]) Color.BLACK else Color.WHITE)
-        }
-    }
-    return@withContext bitmap
 }

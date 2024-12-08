@@ -34,13 +34,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun LocationAutocompleteField(
     modifier: Modifier = Modifier,
+    initialQuery: String = "",
     context: Context,
     label: String,
     placeholder: String,
     onLocationSelected: (String, String, String, String, Double, Double, String) -> Unit, // Updated callback
     onSurface: Boolean = true,
 ) {
-    var query by remember { mutableStateOf(TextFieldValue("")) }
+    var query by remember(initialQuery) { mutableStateOf(TextFieldValue(initialQuery)) }
     var predictions by remember { mutableStateOf<List<AutocompletePrediction>>(emptyList()) }
     var isDropdownExpanded by remember { mutableStateOf(false) }
     var debounceJob by remember { mutableStateOf<Job?>(null) } // To handle debouncing

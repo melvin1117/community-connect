@@ -30,8 +30,9 @@ fun ImageUploaderField(
     maxImages: Int = 5,
     onImagesSelected: (List<Uri>) -> Unit,
     onSurface: Boolean = true,
+    initialSelectedImages: List<Uri> = emptyList()
 ) {
-    var selectedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    var selectedImages by remember { mutableStateOf<List<Uri>>(initialSelectedImages) }
 
     // File picker launcher
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->

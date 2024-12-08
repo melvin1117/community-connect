@@ -1,20 +1,21 @@
 package com.su.communityconnect.ui.components
+
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddCircleOutline
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.su.communityconnect.R
 import com.su.communityconnect.ui.theme.DarkOnSurfaceSecondaryText
 import com.su.communityconnect.ui.theme.NavBorderColor
 
@@ -24,9 +25,9 @@ fun BottomNavBar(
     onItemSelected: (Int) -> Unit
 ) {
     val items = listOf(
-        BottomNavItem("Home", Icons.Outlined.Home),
-        BottomNavItem("Add", Icons.Outlined.AddCircleOutline),
-        BottomNavItem("Favorites", Icons.Outlined.FavoriteBorder),
+        BottomNavItem(stringResource(R.string.nav_home), Icons.Outlined.Home),
+        BottomNavItem(stringResource(R.string.nav_add), Icons.Outlined.AddCircleOutline),
+        BottomNavItem(stringResource(R.string.nav_favorites), Icons.Outlined.FavoriteBorder),
     )
 
     Column(
@@ -49,9 +50,15 @@ fun BottomNavBar(
                 NavigationBarItem(
                     selected = selectedItem == index,
                     onClick = { onItemSelected(index) },
-                    label = { Text(item.label, fontWeight = FontWeight.SemiBold, fontSize = 14.sp) },
-                    icon = { Icon(imageVector = item.icon, contentDescription = null) },
-                    colors = NavigationBarItemColors (
+                    label = {
+                        Text(
+                            text = item.label,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp
+                        )
+                    },
+                    icon = { Icon(imageVector = item.icon, contentDescription = item.label) },
+                    colors = NavigationBarItemColors(
                         selectedIconColor = MaterialTheme.colorScheme.secondary,
                         unselectedIconColor = MaterialTheme.colorScheme.onSurface,
                         selectedTextColor = MaterialTheme.colorScheme.secondary,

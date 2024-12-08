@@ -24,15 +24,12 @@ import network.chaintech.kmp_date_time_picker.utils.TimeFormat
 import network.chaintech.kmp_date_time_picker.utils.now
 import java.time.format.DateTimeFormatter
 import com.su.communityconnect.R
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toJavaLocalDate
-import network.chaintech.kmp_date_time_picker.ui.datepicker.WheelDatePickerView
-import network.chaintech.kmp_date_time_picker.utils.DateTimePickerView
 
 @Composable
 fun DateTimePickerField(
     modifier: Modifier = Modifier,
     label: String,
+    initialSelectedDateTime: LocalDateTime? = null,
     placeholder: String = stringResource(id = R.string.click_select),
     startDateTime: LocalDateTime = LocalDateTime.now(),
     minDateTime: LocalDateTime = LocalDateTime.MIN(),
@@ -41,7 +38,7 @@ fun DateTimePickerField(
     onSurface: Boolean = true,
 ) {
     var showPicker by remember { mutableStateOf(false) }
-    var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
+    var selectedDateTime by remember(initialSelectedDateTime) { mutableStateOf<LocalDateTime?>(initialSelectedDateTime) }
 
     Column(modifier = modifier) {
         Text(

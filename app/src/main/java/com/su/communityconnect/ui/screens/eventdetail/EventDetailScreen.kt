@@ -1,6 +1,5 @@
 package com.su.communityconnect.ui.screens.eventdetail
 
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.*
@@ -37,12 +37,14 @@ import java.time.format.DateTimeFormatter
 import com.su.communityconnect.R
 import com.su.communityconnect.model.EventLocation
 import com.su.communityconnect.model.state.EventLocationState
+import com.su.communityconnect.model.state.UserState
 
 @Composable
 fun EventDetailScreen(
     eventId: String,
     onBackClick: () -> Unit,
     onMapClick: () -> Unit,
+    onEditClick: (String) -> Unit, // Add callback for edit
     onAttendClick: (String) -> Unit,
     viewModel: EventDetailViewModel = hiltViewModel()
 ) {
@@ -50,6 +52,7 @@ fun EventDetailScreen(
     val eventState by viewModel.eventState.collectAsState()
     val organizerState by viewModel.organizerState.collectAsState()
     val isFavorite by viewModel.isFavorite.collectAsState()
+    val userState = UserState.userState.collectAsState().value
     var isDescriptionExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(eventId) {
@@ -100,12 +103,31 @@ fun EventDetailScreen(
                                 .padding(16.dp)
                         )
 
-                        // Share and Wishlist Buttons
+                        // Edit, Share, and Wishlist Buttons
                         Row(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(16.dp)
                         ) {
+                            // Edit Button (Only visible for the creator of the event)
+                            if (eventData.createdBy == UserState.userState.value?.id) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75f))
+                                        .clickable { onEditClick(eventId) },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Edit,
+                                        contentDescription = stringResource(R.string.icon_edit),
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+
                             Box(
                                 modifier = Modifier
                                     .size(48.dp)
